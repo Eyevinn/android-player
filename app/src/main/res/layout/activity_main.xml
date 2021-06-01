@@ -11,32 +11,59 @@
 
     <TextView
         android:id="@+id/sample_app_title"
-        android:text="ExoPlayer 2 Example App:"
+        android:text="Eyevinn WebPlayer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="40sp"
-        android:textColor="#000000"
-        android:gravity="center_horizontal"/>
+        android:textColor="#000000"/>
 
-    <TextView
-    android:id="@+id/resolution_textView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Resolution"
-    android:textSize="40px"
-    android:background="#FFFFFF"
-    android:textColor="#000000"
-    android:layout_below="@+id/sample_app_title"
-    android:gravity="center_horizontal"/>
+    <EditText
+        android:id="@+id/inputtext"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true"
+        android:selectAllOnFocus="true"
+        android:layout_below="@+id/sample_app_title"
+        android:selectable="true"
+        android:hint="Paste a stream Uri here .."/>
 
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_below="@+id/inputtext"
+        android:id="@+id/buttonpanel"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/hlsButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="HLS" />
+
+        <Button
+            android:id="@+id/mpeg_dashButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MPEG-DASH" />
+
+        <Button
+            android:id="@+id/loadButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_blue_light"
+            android:text="Load" />
+
+    </LinearLayout>
 
     <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/exo_player_view"
-        android:focusable="true"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_below="@+id/resolution_textView"
-        android:layout_marginTop="2dp" />
+        android:layout_marginTop="2dp"
+        android:layout_below="@+id/buttonpanel"
+        android:focusable="true" />
+
 
 
 </RelativeLayout>

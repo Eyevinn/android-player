@@ -11,9 +11,9 @@
      limitations under the License.
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name">ExoPlayer2Example</string>
+    <string name="app_name">Eyevinn - Stream testing</string>
 
-    <string name="application_name">ExoPlayer</string>
+    <string name="application_name">Eyevinn - Stream testing</string>
 
     <string name="track_selection_title">Select tracks</string>
 
