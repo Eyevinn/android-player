@@ -1,1 +1,1 @@
-# android-player
+# Eyevinn Andriod app to test HLS and MPEG-dash stream
