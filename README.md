@@ -7,5 +7,6 @@ MPEG-DASH Button to load sample MPEG-DASH stream
 Load button to start the selected video stream.
 User can add valid HLS/Mpeg-Dash video
 
+
 ![alt text](https://github.com/Eyevinn/android-player/blob/exoplayer-integration/Screenshot.png?raw=true)
 

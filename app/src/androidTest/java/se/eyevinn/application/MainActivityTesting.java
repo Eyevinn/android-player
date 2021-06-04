@@ -1,6 +1,5 @@
-package se.eyevinn.appliation;
+package se.eyevinn.application;
 
-import android.media.session.PlaybackState;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
