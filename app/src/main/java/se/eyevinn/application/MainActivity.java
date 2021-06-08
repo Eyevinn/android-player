@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     public static final String HLS_URL = "https://maitv-vod.lab.eyevinn.technology/VINN.mp4/master.m3u8";
     public static final String MPEG_DASH = "https://storage.googleapis.com/shaka-demo-assets/sintel-mp4-only/dash.mpd";
     private static final String TAG = "MainActivity";
-    private PlayerView playerView;
     private SimpleExoPlayer player;
 
     @Override
@@ -46,10 +45,9 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                     .setTrackSelector(trackSelector)
                     .build();
         }
-        playerView = findViewById(R.id.exo_player_view);
+        PlayerView playerView = findViewById(R.id.exo_player_view);
         playerView.setPlayer(player);
         playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
-        playStreamInPlayer(HLS_URL);
         EditText edtView = (EditText) findViewById(R.id.inputtext);
         View.OnFocusChangeListener ofcListener = new MyFocusChangeListener();
         edtView.setOnFocusChangeListener(ofcListener);
