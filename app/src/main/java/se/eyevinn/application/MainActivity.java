@@ -8,7 +8,9 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
@@ -16,13 +18,18 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+
 import org.jetbrains.annotations.NotNull;
 
 
 public class MainActivity extends AppCompatActivity implements VideoRendererEventListener {
 
-    public static final String HLS_URL = "https://maitv-vod.lab.eyevinn.technology/VINN.mp4/master.m3u8";
-    public static final String MPEG_DASH = "https://storage.googleapis.com/shaka-demo-assets/sintel-mp4-only/dash.mpd";
+    public static final String HLS_VOD = "https://f53accc45b7aded64ed8085068f31881.egress.mediapackage-vod.eu-north-1.amazonaws.com/out/v1/1c63bf88e2664639a6c293b4d055e6bb/ade303f83e8444d69b7658f988abb054/2a647c0cf9b7409598770b9f11799178/manifest.m3u8";
+    public static final String MPD_VOD = "https://f53accc45b7aded64ed8085068f31881.egress.mediapackage-vod.eu-north-1.amazonaws.com/out/v1/1c63bf88e2664639a6c293b4d055e6bb/64651f16da554640930b7ce2cd9f758b/66d211307b7d43d3bd515a3bfb654e1c/manifest.mpd";
+    public static final String HLS_LIVE = "https://d2fz24s2fts31b.cloudfront.net/out/v1/6484d7c664924b77893f9b4f63080e5d/manifest.m3u8";
+    public static final String MPD_LIVE = "https://d2fz24s2fts31b.cloudfront.net/out/v1/3b6879c0836346c2a44c9b4b33520f4e/manifest.mpd";
+    public static final String HLS_LIVE_SSAI = "https://edfaeed9c7154a20828a30a26878ade0.mediatailor.eu-west-1.amazonaws.com/v1/master/1b8a07d9a44fe90e52d5698704c72270d177ae74/AdTest/master.m3u8";
+
     private static final String TAG = "MainActivity";
     private SimpleExoPlayer player;
 
@@ -32,8 +39,11 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         setContentView(R.layout.activity_main);
         setupPlayer();
         loadButtonListener();
-        hlsButtonListener();
-        mpegDashButtonListener();
+        hlsVodButtonListener();
+        mpdVodButtonListener();
+        hlsLiveButtonListener();
+        mpdLiveButtonListener();
+        hlsLiveSsaiButtonListener();
     }
 
     private void setupPlayer() {
@@ -54,25 +64,61 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         player.setPlayWhenReady(true); //run file/link when ready to play.
     }
 
-    private void mpegDashButtonListener() {
-        Button mpeg_dashButton = (Button) findViewById(R.id.mpeg_dashButton);
-        mpeg_dashButton.setOnClickListener(new View.OnClickListener() {
+    private void hlsVodButtonListener() {
+        Button hlsButton = (Button) findViewById(R.id.hlsVodButton);
+        hlsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = (EditText) findViewById(R.id.inputtext);
-                editText.setText(MPEG_DASH, TextView.BufferType.EDITABLE);
+                editText.setText(HLS_VOD, TextView.BufferType.EDITABLE);
                 editText.clearFocus();
             }
         });
     }
 
-    private void hlsButtonListener() {
-        Button hlsButton = (Button) findViewById(R.id.hlsButton);
+    private void hlsLiveButtonListener() {
+        Button hlsButton = (Button) findViewById(R.id.hlsLiveButton);
         hlsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 EditText editText = (EditText) findViewById(R.id.inputtext);
-                editText.setText(HLS_URL, TextView.BufferType.EDITABLE);
+                editText.setText(HLS_LIVE, TextView.BufferType.EDITABLE);
+                editText.clearFocus();
+            }
+        });
+    }
+
+    private void mpdVodButtonListener() {
+        Button hlsButton = (Button) findViewById(R.id.mpdVodButton);
+        hlsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText editText = (EditText) findViewById(R.id.inputtext);
+                editText.setText(MPD_VOD, TextView.BufferType.EDITABLE);
+                editText.clearFocus();
+            }
+        });
+    }
+
+    private void mpdLiveButtonListener() {
+        Button hlsButton = (Button) findViewById(R.id.mpdLiveButton);
+        hlsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText editText = (EditText) findViewById(R.id.inputtext);
+                editText.setText(MPD_LIVE, TextView.BufferType.EDITABLE);
+                editText.clearFocus();
+            }
+        });
+    }
+
+    private void hlsLiveSsaiButtonListener() {
+        Button hlsButton = (Button) findViewById(R.id.hlsLiveSsaiButton);
+        hlsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText editText = (EditText) findViewById(R.id.inputtext);
+                editText.setText(HLS_LIVE_SSAI, TextView.BufferType.EDITABLE);
                 editText.clearFocus();
             }
         });
