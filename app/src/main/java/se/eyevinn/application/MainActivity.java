@@ -1,9 +1,11 @@
 package se.eyevinn.application;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,6 +21,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
@@ -73,6 +76,21 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         View.OnFocusChangeListener ofcListener = new MyFocusChangeListener();
         edtView.setOnFocusChangeListener(ofcListener);
         player.setPlayWhenReady(true); //run file/link when ready to play.
+        player.addListener(new Player.Listener(){
+            @Override
+            public void onIsPlayingChanged(boolean isPlaying) {
+                if (isPlaying && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                    findViewById(R.id.streamControls).setVisibility(View.GONE);
+                    // Active playback.
+                } else {
+                    // Not playing because playback is paused, ended, suppressed, or the player
+                    // is buffering, stopped or failed. Check player.getPlayWhenReady,
+                    // player.getPlaybackState, player.getPlaybackSuppressionReason and
+                    // player.getPlaybackError for details.
+                    findViewById(R.id.streamControls).setVisibility(View.VISIBLE);
+                }
+            }
+        });
     }
 
     private void hlsVodButtonListener() {
