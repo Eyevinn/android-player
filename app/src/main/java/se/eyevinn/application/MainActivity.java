@@ -239,6 +239,12 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                     .setMimeType(MimeTypes.APPLICATION_MPD)
                     .build();
             player.setMediaItem(mediaItem);
+        } else if (url.endsWith("mp4")) {
+            MediaItem mediaItem = new MediaItem.Builder()
+                    .setUri(url)
+                    .setMimeType(MimeTypes.APPLICATION_MP4)
+                    .build();
+            player.setMediaItem(mediaItem);
         } else {
             Log.v(TAG, "Invalid url");
         }
