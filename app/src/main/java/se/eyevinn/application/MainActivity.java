@@ -2,8 +2,11 @@ package se.eyevinn.application;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.BatteryManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -23,9 +26,8 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.lang.management.*;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MainActivity extends AppCompatActivity implements VideoRendererEventListener {
@@ -38,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
     private static final String TAG = "MainActivity";
     private SimpleExoPlayer player;
+    private final Handler mainHandler = new Handler();
+    private final Timer timer = new Timer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,121 +77,128 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
     private void hlsVodButtonListener() {
         Button hlsButton = (Button) findViewById(R.id.hlsVodButton);
-        hlsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText editText = (EditText) findViewById(R.id.inputtext);
-                editText.setText(HLS_VOD, TextView.BufferType.EDITABLE);
-                editText.clearFocus();
-            }
+        hlsButton.setOnClickListener(view -> {
+            EditText editText = (EditText) findViewById(R.id.inputtext);
+            editText.setText(HLS_VOD, TextView.BufferType.EDITABLE);
+            editText.clearFocus();
         });
     }
 
     private void hlsLiveButtonListener() {
         Button hlsButton = (Button) findViewById(R.id.hlsLiveButton);
-        hlsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText editText = (EditText) findViewById(R.id.inputtext);
-                editText.setText(HLS_LIVE, TextView.BufferType.EDITABLE);
-                editText.clearFocus();
-            }
+        hlsButton.setOnClickListener(view -> {
+            EditText editText = (EditText) findViewById(R.id.inputtext);
+            editText.setText(HLS_LIVE, TextView.BufferType.EDITABLE);
+            editText.clearFocus();
         });
     }
 
     private void mpdVodButtonListener() {
         Button hlsButton = (Button) findViewById(R.id.mpdVodButton);
-        hlsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText editText = (EditText) findViewById(R.id.inputtext);
-                editText.setText(MPD_VOD, TextView.BufferType.EDITABLE);
-                editText.clearFocus();
-            }
+        hlsButton.setOnClickListener(view -> {
+            EditText editText = (EditText) findViewById(R.id.inputtext);
+            editText.setText(MPD_VOD, TextView.BufferType.EDITABLE);
+            editText.clearFocus();
         });
     }
 
     private void mpdLiveButtonListener() {
         Button hlsButton = (Button) findViewById(R.id.mpdLiveButton);
-        hlsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText editText = (EditText) findViewById(R.id.inputtext);
-                editText.setText(MPD_LIVE, TextView.BufferType.EDITABLE);
-                editText.clearFocus();
-            }
+        hlsButton.setOnClickListener(view -> {
+            EditText editText = (EditText) findViewById(R.id.inputtext);
+            editText.setText(MPD_LIVE, TextView.BufferType.EDITABLE);
+            editText.clearFocus();
         });
     }
 
     private void hlsLiveSsaiButtonListener() {
         Button hlsButton = (Button) findViewById(R.id.hlsLiveSsaiButton);
-        hlsButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText editText = (EditText) findViewById(R.id.inputtext);
-                editText.setText(HLS_LIVE_SSAI, TextView.BufferType.EDITABLE);
-                editText.clearFocus();
-            }
+        hlsButton.setOnClickListener(view -> {
+            EditText editText = (EditText) findViewById(R.id.inputtext);
+            editText.setText(HLS_LIVE_SSAI, TextView.BufferType.EDITABLE);
+            editText.clearFocus();
         });
     }
 
     private void loadButtonListener() {
         Button button = (Button) findViewById(R.id.loadButton);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PlayerView pv = (PlayerView) findViewById(R.id.exo_player_view);
-                pv.setVisibility(View.VISIBLE);
-                EditText editText = (EditText) findViewById(R.id.inputtext);
-                editText.clearFocus();
-                EditText inputText = (EditText) findViewById(R.id.inputtext);
-                String message = inputText.getText().toString();
-                playStreamInPlayer(message);
-            }
+        button.setOnClickListener(view -> {
+            PlayerView pv = (PlayerView) findViewById(R.id.exo_player_view);
+            pv.setVisibility(View.VISIBLE);
+            EditText editText = (EditText) findViewById(R.id.inputtext);
+            editText.clearFocus();
+            EditText inputText = (EditText) findViewById(R.id.inputtext);
+            String message = inputText.getText().toString();
+            playStreamInPlayer(message);
         });
     }
 
     private void showDataButtonListener() {
         Button button = (Button) findViewById(R.id.showDataButton);
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.hwMetrics);
         button.setOnClickListener(view -> {
-            if(findViewById(R.id.hwMetrics).getVisibility() == View.VISIBLE) {
+            if(layout.getVisibility() == View.VISIBLE) {
                 System.out.println("Hiding metrics");
-                RelativeLayout ll = (RelativeLayout) findViewById(R.id.hwMetrics);
-                ll.setVisibility(View.GONE);
+                layout.setVisibility(View.GONE);
+                timer.cancel();
             } else {
-                RelativeLayout ll = (RelativeLayout) findViewById(R.id.hwMetrics);
-                ll.setVisibility(View.VISIBLE);
+                layout.setVisibility(View.VISIBLE);
                 System.out.println("Showing metrics");
-                getHardwareMetrics();
+                timer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        getHardwareMetrics();
+                    }
+                },1000L, 1000L);
             }
         });
     }
 
     private void getHardwareMetrics() {
-        ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-        updateMemoryMetrics(activityManager);
-        updateBatteryMetrics();
-
-    }
-
-    private void updateBatteryMetrics() {
-        BatteryManager batteryManager = (BatteryManager) this.getSystemService(BATTERY_SERVICE);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            int batteryLvl = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        RelativeLayout hwMetrics = (RelativeLayout) findViewById(R.id.hwMetrics);
+        while(hwMetrics.getVisibility() == View.VISIBLE) {
+            updateMemoryMetrics();
+            updateBatteryMetrics();
         }
     }
 
-    private void updateMemoryMetrics(ActivityManager activityManager) {
+    private void updateBatteryMetrics() {
+        ProgressBar batteryBar = (ProgressBar) findViewById(R.id.batteryBar);
+        TextView batteryText = (TextView) findViewById(R.id.batteryText);
+        Intent batteryStatus = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
+        if(checkIfPluggedIn(batteryStatus)) {
+            System.out.println("Device is plugged in");
+            mainHandler.post(() -> {
+                batteryBar.setProgress(100);
+                batteryText.setText(String.format("100%%"));
+            });
+        } else {
+            int batteryLvl = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+            int batteryScale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+            float batteryPercentage = batteryLvl * 100 / (float) batteryScale;
+            mainHandler.post(() -> {
+                batteryBar.setProgress(batteryLvl);
+                batteryText.setText(String.format("%.2f%%", (double) batteryPercentage));
+            });
+        }
+    }
+
+    private boolean checkIfPluggedIn(Intent intent) {
+        int isPlugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
+        return isPlugged != 0;
+    }
+
+    private void updateMemoryMetrics() {
+        ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
         ProgressBar memBar = (ProgressBar) findViewById(R.id.memBar);
         TextView memText = (TextView) findViewById(R.id.memText);
         ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
         activityManager.getMemoryInfo(mem);
         int percent = (int)Math.ceil((1.0 - ((double)mem.availMem / mem.totalMem)) * 100);
         memBar.setProgress(percent);
-        memText.setText(String.format("Available Memory: %.2fGB", ((double)mem.availMem / 1024 / 1024 / 1024)));
+        memText.setText(String.format("%.2fGB", ((double)mem.availMem / 1024 / 1024 / 1024)));
     }
 
-    @NotNull
     private void playStreamInPlayer(String url) {
         if (url.endsWith("m3u8")) {
             MediaItem mediaItem = new MediaItem.Builder()
