@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     private static final String TAG = "MainActivity";
     private SimpleExoPlayer player;
     private final Handler mainHandler = new Handler();
-    private final Timer timer = new Timer();
+    private Timer timer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                 layout.setVisibility(View.GONE);
                 timer.cancel();
             } else {
+                timer = new Timer();
                 layout.setVisibility(View.VISIBLE);
                 System.out.println("Showing metrics");
                 timer.scheduleAtFixedRate(new TimerTask() {
@@ -149,17 +150,14 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                     public void run() {
                         getHardwareMetrics();
                     }
-                },1000L, 1000L);
+                },0, 1000);
             }
         });
     }
 
     private void getHardwareMetrics() {
-        RelativeLayout hwMetrics = (RelativeLayout) findViewById(R.id.hwMetrics);
-        while(hwMetrics.getVisibility() == View.VISIBLE) {
-            updateMemoryMetrics();
-            updateBatteryMetrics();
-        }
+        updateMemoryMetrics();
+        updateBatteryMetrics();
     }
 
     private void updateBatteryMetrics() {
@@ -168,18 +166,26 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         Intent batteryStatus = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if(checkIfPluggedIn(batteryStatus)) {
             System.out.println("Device is plugged in");
-            mainHandler.post(() -> {
+            this.runOnUiThread(() -> {
                 batteryBar.setProgress(100);
                 batteryText.setText(String.format("100%%"));
             });
+//            mainHandler.post(() -> {
+//                batteryBar.setProgress(100);
+//                batteryText.setText(String.format("100%%"));
+//            });
         } else {
             int batteryLvl = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int batteryScale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             float batteryPercentage = batteryLvl * 100 / (float) batteryScale;
-            mainHandler.post(() -> {
+            this.runOnUiThread(() -> {
                 batteryBar.setProgress(batteryLvl);
                 batteryText.setText(String.format("%.2f%%", (double) batteryPercentage));
             });
+//            mainHandler.post(() -> {
+//                batteryBar.setProgress(batteryLvl);
+//                batteryText.setText(String.format("%.2f%%", (double) batteryPercentage));
+//            });
         }
     }
 
@@ -195,8 +201,10 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
         activityManager.getMemoryInfo(mem);
         int percent = (int)Math.ceil((1.0 - ((double)mem.availMem / mem.totalMem)) * 100);
-        memBar.setProgress(percent);
-        memText.setText(String.format("%.2fGB", ((double)mem.availMem / 1024 / 1024 / 1024)));
+        this.runOnUiThread(() -> {
+            memBar.setProgress(percent);
+            memText.setText(String.format("%.2fGB", ((double)mem.availMem / 1024 / 1024 / 1024)));
+        });
     }
 
     private void playStreamInPlayer(String url) {

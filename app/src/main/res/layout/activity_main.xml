@@ -108,7 +108,7 @@
                 android:background="@drawable/border"
                 android:orientation="vertical"
                 android:layout_alignParentBottom="true"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <ProgressBar
                     android:id="@+id/memBar"
