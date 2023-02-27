@@ -26,6 +26,11 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.NumberFormat;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -158,6 +163,19 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     private void getHardwareMetrics() {
         updateMemoryMetrics();
         updateBatteryMetrics();
+        updateCpuMetrics();
+    }
+
+    private void updateCpuMetrics() {
+        ProgressBar cpuBar = (ProgressBar) findViewById(R.id.cpuBar);
+        TextView cpuText = (TextView) findViewById(R.id.cpuText);
+        try {
+            CpuUtilizationTask cpuUtilizationTask = new CpuUtilizationTask();
+            cpuUtilizationTask.run();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private void updateBatteryMetrics() {
@@ -165,27 +183,22 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         TextView batteryText = (TextView) findViewById(R.id.batteryText);
         Intent batteryStatus = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if(checkIfPluggedIn(batteryStatus)) {
-            System.out.println("Device is plugged in");
             this.runOnUiThread(() -> {
-                batteryBar.setProgress(100);
-                batteryText.setText(String.format("100%%"));
+                batteryBar.setVisibility(View.GONE);
+                batteryText.setVisibility(View.GONE);
             });
-//            mainHandler.post(() -> {
-//                batteryBar.setProgress(100);
-//                batteryText.setText(String.format("100%%"));
-//            });
         } else {
             int batteryLvl = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int batteryScale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             float batteryPercentage = batteryLvl * 100 / (float) batteryScale;
             this.runOnUiThread(() -> {
+                if(batteryBar.getVisibility() != View.VISIBLE) {
+                    batteryBar.setVisibility(View.VISIBLE);
+                    batteryText.setVisibility(View.VISIBLE);
+                }
                 batteryBar.setProgress(batteryLvl);
                 batteryText.setText(String.format("%.2f%%", (double) batteryPercentage));
             });
-//            mainHandler.post(() -> {
-//                batteryBar.setProgress(batteryLvl);
-//                batteryText.setText(String.format("%.2f%%", (double) batteryPercentage));
-//            });
         }
     }
 
@@ -243,5 +256,59 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         }
+    }
+
+    static class CpuUtilizationTask extends TimerTask {
+
+        private final String STAT_FILE_HEADER = "cpu  ";
+        private final NumberFormat percentFormatter;
+        private final RandomAccessFile statPointer;
+        long previousIdleTime = 0, previousTotalTime = 0;
+
+        public CpuUtilizationTask() throws FileNotFoundException {
+            this.percentFormatter = NumberFormat.getPercentInstance();
+            percentFormatter.setMaximumFractionDigits(2);
+            File statFile = new File("/proc/stat");
+            /* by using the RandomAcessFile, we're able to keep an open file stream for
+             * as long as this object lives, making further file openings unnecessary */
+            this.statPointer = new RandomAccessFile(statFile, "r");
+        }
+
+        @Override
+        public void run() {
+
+            try {
+                String[] values = statPointer.readLine()
+                        .substring(STAT_FILE_HEADER.length())
+                        .split(" ");
+
+                /* because Java doesn't have unsigned primitive types, we have to use the boxed
+                 * Long's parseUsigned method. It does what it says it does.
+                 * The rest of the arithmetic can go on as normal.
+                 * I've seen solutions reading the value as integers. They're NOT!*/
+                long idleTime = Long.parseUnsignedLong(values[3]);
+                long totalTime = 0L;
+                for (String value : values) {
+                    totalTime += Long.parseUnsignedLong(value);
+                }
+
+                long idleTimeDelta = idleTime - previousIdleTime;
+                long totalTimeDelta = totalTime - previousTotalTime;
+                double utilization = 1 - ((double) idleTimeDelta) / totalTimeDelta;
+
+                /* Again, this is showing one more advantage of doing idiomatic Java
+                 * we're doing locale aware percentage formatting */
+                System.out.println(percentFormatter.format(utilization));
+
+                previousIdleTime = idleTime;
+                previousTotalTime = totalTime;
+
+                // take us back to the beginning of the file, so we don't have to reopen it
+                statPointer.seek(0);
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+        }
+
     }
 }
