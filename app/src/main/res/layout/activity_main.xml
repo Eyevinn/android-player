@@ -1,90 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="se.eyevinn.application.MainActivity">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true">
 
-    <ImageView
-        android:id="@+id/avatarImageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg"
-        android:src="@drawable/logo" />
-
-    <EditText
-        android:id="@+id/inputtext"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/avatarImageView"
-        android:hint="Paste a stream Uri here .."
-        android:selectAllOnFocus="true"
-        android:selectable="true"
-        android:textIsSelectable="true" />
+        android:isScrollContainer="true"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        tools:context="se.eyevinn.application.MainActivity">
 
-    <LinearLayout
-        android:id="@+id/buttonpanel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/inputtext"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/hlsVodButton"
+        <ImageView
+            android:id="@+id/avatarImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="HLS VOD" />
+            android:background="@drawable/bg"
+            android:src="@drawable/logo" />
 
-        <Button
-            android:id="@+id/mpdVodButton"
+        <EditText
+            android:id="@+id/inputtext"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/avatarImageView"
+            android:hint="Paste a stream Uri here .."
+            android:selectAllOnFocus="true"
+            android:selectable="true"
+            android:textIsSelectable="true" />
+
+        <LinearLayout
+            android:id="@+id/buttonpanel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="MPD_VOD" />
+            android:layout_below="@+id/inputtext"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/hlsLiveButton"
+            <Button
+                android:id="@+id/hlsVodButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HLS VOD" />
+
+            <Button
+                android:id="@+id/mpdVodButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MPD_VOD" />
+
+            <Button
+                android:id="@+id/hlsLiveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HLS_LIVE" />
+
+            <Button
+                android:id="@+id/mpdLiveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="MPD_LIVE" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/buttonpanel2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="HLS_LIVE" />
+            android:layout_below="@+id/buttonpanel"
+            android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/mpdLiveButton"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="MPD_LIVE" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/hlsLiveSsaiButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HLS_LIVE_SSAI" />
 
-    <LinearLayout
-        android:id="@+id/buttonpanel2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/buttonpanel"
-        android:orientation="horizontal">
+            <Button
+                android:id="@+id/loadButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/holo_blue_light"
+                android:text="Load"></Button>
 
-        <Button
-            android:id="@+id/hlsLiveSsaiButton"
-            android:layout_width="wrap_content"
+            <Button
+                android:id="@+id/showDataButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SHOW DATA" />
+        </LinearLayout>
+
+
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/exo_player_view"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="HLS_LIVE_SSAI" />
+            android:layout_below="@+id/buttonpanel2"
+            android:layout_marginTop="10dp"
+            android:visibility="visible"
+            android:focusable="true">
 
-        <Button
-            android:id="@+id/loadButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/holo_blue_light"
-            android:text="Load"></Button>
-    </LinearLayout>
+            <RelativeLayout
+                android:id="@+id/hwMetrics"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/border"
+                android:orientation="vertical"
+                android:layout_alignParentBottom="true"
+                android:visibility="visible">
 
+                <ProgressBar
+                    android:id="@+id/memBar"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:gravity="center"
+                    android:maxWidth="48dp"
+                    android:maxHeight="24dp"
+                    android:minWidth="48dp"
+                    android:minHeight="24dp"
+                    android:paddingLeft="6dp"
+                    android:max="100"
+                    android:progressBackgroundTint="#FF0000"
+                    android:progressTint="#00FF00"/>
 
-    <com.google.android.exoplayer2.ui.PlayerView
-        android:id="@+id/exo_player_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/buttonpanel2"
-        android:layout_marginTop="2dp"
-        android:focusable="true" />
-</RelativeLayout>
+                <TextView
+                    android:id="@+id/memText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:layout_marginLeft="20dp"
+                    android:layout_toRightOf="@id/memBar"
+                    android:minWidth="80dp"
+                    android:text=""
+                    android:textColor="#FFFFFF"
+                    android:shadowColor="#000000"
+                    android:shadowRadius="1"
+                    android:shadowDy="2"
+                    android:shadowDx="2"/>
+
+                <ProgressBar
+                    android:id="@+id/cpuBar"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toLeftOf="@id/cpuText"
+                    android:layout_marginLeft="20dp"
+                    android:maxWidth="48dp"
+                    android:maxHeight="24dp"
+                    android:minWidth="48dp"
+                    android:minHeight="24dp"
+                    android:paddingLeft="6dp"
+                    android:max="100"
+                    android:progressBackgroundTint="#FF0000"
+                    android:progressTint="#00FF00"/>
+
+                <TextView
+                    android:id="@+id/cpuText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginRight="6dp"
+                    android:minWidth="80dp"
+                    android:text=""
+                    android:textColor="#FFFFFF"
+                    android:shadowColor="#000000"
+                    android:shadowRadius="1"
+                    android:shadowDy="2"
+                    android:shadowDx="2" />
+
+            </RelativeLayout>
+
+        </com.google.android.exoplayer2.ui.PlayerView>
+
+    </RelativeLayout>
+</ScrollView>

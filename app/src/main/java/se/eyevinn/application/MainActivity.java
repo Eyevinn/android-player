@@ -1,12 +1,16 @@
 package se.eyevinn.application;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +24,8 @@ import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.lang.management.*;
 
 
 public class MainActivity extends AppCompatActivity implements VideoRendererEventListener {
@@ -44,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         hlsLiveButtonListener();
         mpdLiveButtonListener();
         hlsLiveSsaiButtonListener();
+        showDataButtonListener();
     }
 
     private void setupPlayer() {
@@ -129,6 +136,8 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                PlayerView pv = (PlayerView) findViewById(R.id.exo_player_view);
+                pv.setVisibility(View.VISIBLE);
                 EditText editText = (EditText) findViewById(R.id.inputtext);
                 editText.clearFocus();
                 EditText inputText = (EditText) findViewById(R.id.inputtext);
@@ -136,6 +145,46 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                 playStreamInPlayer(message);
             }
         });
+    }
+
+    private void showDataButtonListener() {
+        Button button = (Button) findViewById(R.id.showDataButton);
+        button.setOnClickListener(view -> {
+            if(findViewById(R.id.hwMetrics).getVisibility() == View.VISIBLE) {
+                System.out.println("Hiding metrics");
+                RelativeLayout ll = (RelativeLayout) findViewById(R.id.hwMetrics);
+                ll.setVisibility(View.GONE);
+            } else {
+                RelativeLayout ll = (RelativeLayout) findViewById(R.id.hwMetrics);
+                ll.setVisibility(View.VISIBLE);
+                System.out.println("Showing metrics");
+                getHardwareMetrics();
+            }
+        });
+    }
+
+    private void getHardwareMetrics() {
+        ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
+        updateMemoryMetrics(activityManager);
+        updateBatteryMetrics();
+
+    }
+
+    private void updateBatteryMetrics() {
+        BatteryManager batteryManager = (BatteryManager) this.getSystemService(BATTERY_SERVICE);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            int batteryLvl = batteryManager.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY);
+        }
+    }
+
+    private void updateMemoryMetrics(ActivityManager activityManager) {
+        ProgressBar memBar = (ProgressBar) findViewById(R.id.memBar);
+        TextView memText = (TextView) findViewById(R.id.memText);
+        ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(mem);
+        int percent = (int)Math.ceil((1.0 - ((double)mem.availMem / mem.totalMem)) * 100);
+        memBar.setProgress(percent);
+        memText.setText(String.format("Available Memory: %.2fGB", ((double)mem.availMem / 1024 / 1024 / 1024)));
     }
 
     @NotNull
