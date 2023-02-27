@@ -25,7 +25,6 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.management.*;
 
 
 public class MainActivity extends AppCompatActivity implements VideoRendererEventListener {

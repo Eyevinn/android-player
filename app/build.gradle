@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId "se.eyevinn.appliation"
-        minSdkVersion 16
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "1.0"
@@ -39,10 +39,25 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.3.1'
     implementation 'junit:junit:4.12'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.12.0'
-    implementation 'com.google.android.exoplayer:exoplayer-dash:2.12.0'
-    implementation 'com.google.android.exoplayer:exoplayer-hls:2.12.0'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.12.0'
+    if (Boolean.valueOf(project.property("vnovaExoplayer"))) {
+        implementation files('../vnova-libs/library-release.aar')
+        implementation files('../vnova-libs/library-core-release.aar')
+        implementation files('../vnova-libs/library-ui-release.aar')
+        implementation files('../vnova-libs/library-dash-release.aar')
+        implementation files('../vnova-libs/library-hls-release.aar')
+        implementation files('../vnova-libs/library-common-release.aar')
+        implementation("com.google.guava:guava:31.1-jre")
+        implementation("com.google.android.exoplayer:exoplayer-extractor:2.12.0") {
+            exclude group: "com.google.android.exoplayer", module: "exoplayer-common"
+        }
+    } else {
+        implementation 'com.google.android.exoplayer:exoplayer-core:2.12.0'
+        implementation 'com.google.android.exoplayer:exoplayer-dash:2.12.0'
+        implementation 'com.google.android.exoplayer:exoplayer-hls:2.12.0'
+        implementation 'com.google.android.exoplayer:exoplayer-ui:2.12.0'
+    }
+    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.14.2"
 
 
 
