@@ -11,6 +11,7 @@ import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             public void onIsPlayingChanged(boolean isPlaying) {
                 if (isPlaying) {
                     findViewById(R.id.streamControls).setVisibility(View.GONE);
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     // Active playback.
                 } else {
                     // Not playing because playback is paused, ended, suppressed, or the player
@@ -100,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                     // player.getPlaybackState, player.getPlaybackSuppressionReason and
                     // player.getPlaybackError for details.
                     findViewById(R.id.streamControls).setVisibility(View.VISIBLE);
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                //(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 }
             }
         });
