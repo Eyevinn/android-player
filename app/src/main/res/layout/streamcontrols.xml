@@ -1,4 +1,5 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/streamControls"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -26,9 +27,9 @@
 
         <EditText
             android:id="@+id/inputtext"
-            android:layout_height="wrap_content"
             android:layout_width="100dp"
-            android:layout_weight = "1"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:background="@color/exo_white_opacity_70"
             android:hint="Paste a stream Uri here .."
             android:selectAllOnFocus="true"
@@ -39,57 +40,59 @@
             android:id="@+id/loadButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@android:color/holo_blue_light"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp"
+            android:background="@android:color/holo_blue_light"
+            android:tooltipText="Load a video URL, or a json document containing a list of URLS"
             android:text="Load"></Button>
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/buttonpanel"
+        android:id="@+id/buttonpanels"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/streamsUrlPanel"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/hlsVodButton"
+        <com.google.android.flexbox.FlexboxLayout
+            android:id="@+id/buttonpanel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="HLS VOD" />
+            app:flexDirection="row"
+            app:flexWrap="wrap">
 
-        <Button
-            android:id="@+id/mpdVodButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="MPD_VOD" />
+            <Button
+                android:id="@+id/hlsVodButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HLS VOD" />
 
-        <Button
-            android:id="@+id/hlsLiveButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="HLS_LIVE" />
+            <Button
+                android:id="@+id/mpdVodButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="MPD_VOD" />
 
-        <Button
-            android:id="@+id/mpdLiveButton"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="MPD_LIVE" />
-    </LinearLayout>
+            <Button
+                android:id="@+id/hlsLiveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HLS_LIVE" />
 
-    <LinearLayout
-        android:id="@+id/buttonpanel2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/buttonpanel"
-        android:orientation="horizontal">
+            <Button
+                android:id="@+id/mpdLiveButton"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="MPD_LIVE" />
 
-        <Button
-            android:id="@+id/hlsLiveSsaiButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="HLS_LIVE_SSAI" />
 
+            <Button
+                android:id="@+id/hlsLiveSsaiButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="HLS_LIVE_SSAI" />
+
+        </com.google.android.flexbox.FlexboxLayout>
         <Button
             android:id="@+id/showDataButton"
             android:layout_width="wrap_content"
