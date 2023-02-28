@@ -16,22 +16,40 @@
         android:background="@drawable/bg"
         android:src="@drawable/logo" />
 
-    <EditText
-        android:id="@+id/inputtext"
+    <LinearLayout
+        android:id="@+id/streamsUrlPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/avatarImageView"
-        android:hint="Paste a stream Uri here .."
-        android:background="@color/exo_white_opacity_70"
-        android:selectAllOnFocus="true"
-        android:selectable="true"
-        android:textIsSelectable="true" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/inputtext"
+            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_weight = "1"
+            android:background="@color/exo_white_opacity_70"
+            android:hint="Paste a stream Uri here .."
+            android:selectAllOnFocus="true"
+            android:selectable="true"
+            android:textIsSelectable="true" />
+
+        <Button
+            android:id="@+id/loadButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_blue_light"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:text="Load"></Button>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/buttonpanel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/inputtext"
+        android:layout_below="@+id/streamsUrlPanel"
         android:orientation="horizontal">
 
         <Button
@@ -71,13 +89,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="HLS_LIVE_SSAI" />
-
-        <Button
-            android:id="@+id/loadButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/holo_blue_light"
-            android:text="Load"></Button>
 
         <Button
             android:id="@+id/showDataButton"
