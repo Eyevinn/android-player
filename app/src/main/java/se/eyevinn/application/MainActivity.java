@@ -172,18 +172,19 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         });
     }
 
-    private void onSourcesLoaded(TaskGetSourceList.SourceList sourceList) {
+    private void onSourcesLoaded(TaskGetSourceList.SourceListLoaded sourceListLoaded) {
         LinearLayout buttonPanel1 = findViewById(R.id.buttonpanels);
         buttonPanel1.removeAllViews();
         FlexboxLayout flexbox = new FlexboxLayout(getApplicationContext());
         flexbox.setFlexDirection(FlexDirection.ROW);
         flexbox.setFlexWrap(FlexWrap.WRAP);
-        for(TaskGetSourceList.Source s : sourceList.getSourceList()) {
+        for(TaskGetSourceList.Source s : sourceListLoaded.getSourceList()) {
             Button b = new Button(this);
             b.setText(s.getName());
-            b.setTooltipText(s.getUrl());
+            String fullUrl = sourceListLoaded.getSourceListUrl().resolve(s.getUrl()).toString();
+            b.setTooltipText(fullUrl);
             b.setOnClickListener(view -> {
-                playStreamInPlayer(s.getUrl());
+                playStreamInPlayer(fullUrl);
             });
            flexbox.addView(b);
         }
