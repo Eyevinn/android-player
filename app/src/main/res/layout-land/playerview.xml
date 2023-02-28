@@ -7,11 +7,22 @@
     android:focusable="true"
     android:visibility="visible">
 
+    <ImageButton
+        android:id="@+id/debug_icon"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/bg"
+        android:src="@drawable/android_debug_icon" />
+
     <RelativeLayout
         android:id="@+id/hwMetrics"
-        android:layout_width="fill_parent"
+        android:layout_toRightOf="@+id/debug_icon"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
+
         android:background="@drawable/border"
         android:orientation="vertical"
         android:visibility="gone">

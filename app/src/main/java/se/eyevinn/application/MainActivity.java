@@ -4,11 +4,7 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-<<<<<<< HEAD
-=======
-import android.content.res.Configuration;
-import android.content.res.Resources;
->>>>>>> fa9a6c5842be87cdb5292b614b99b6fd229161a5
+
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Process;
@@ -19,7 +15,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -39,13 +35,10 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
 
-<<<<<<< HEAD
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-=======
 import java.net.URI;
->>>>>>> fa9a6c5842be87cdb5292b614b99b6fd229161a5
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -61,10 +54,10 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     private static final String TAG = "MainActivity";
     private SimpleExoPlayer player;
     private Timer timer;
-    private static long numCores = Os.sysconf(OsConstants._SC_NPROCESSORS_CONF);
-    private static long clockSpeedHz = Os.sysconf(OsConstants._SC_CLK_TCK);
-    private static int appPID = Process.myPid();
-    private static CpuMetrics cpuMetrics = new CpuMetrics();
+    private static final long numCores = Os.sysconf(OsConstants._SC_NPROCESSORS_CONF);
+    private static final long clockSpeedHz = Os.sysconf(OsConstants._SC_CLK_TCK);
+    private static final int appPID = Process.myPid();
+    private static final CpuMetrics cpuMetrics = new CpuMetrics();
 
 
     @Override
@@ -78,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         hlsLiveButtonListener();
         mpdLiveButtonListener();
         hlsLiveSsaiButtonListener();
-        showDataButtonListener();
+        debugButtonListener();
     }
 
     private void setupPlayer() {
@@ -93,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         PlayerView playerView = findViewById(R.id.exo_player_view);
         playerView.setPlayer(player);
         playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
-        EditText edtView = (EditText) findViewById(R.id.inputtext);
+        EditText edtView = findViewById(R.id.inputtext);
         View.OnFocusChangeListener ofcListener = new MyFocusChangeListener();
         edtView.setOnFocusChangeListener(ofcListener);
         player.setPlayWhenReady(true); //run file/link when ready to play.
@@ -115,58 +108,58 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     }
 
     private void hlsVodButtonListener() {
-        Button hlsButton = (Button) findViewById(R.id.hlsVodButton);
+        Button hlsButton = findViewById(R.id.hlsVodButton);
         hlsButton.setOnClickListener(view -> {
-            EditText editText = (EditText) findViewById(R.id.inputtext);
+            EditText editText = findViewById(R.id.inputtext);
             editText.setText(HLS_VOD, TextView.BufferType.EDITABLE);
             editText.clearFocus();
         });
     }
 
     private void hlsLiveButtonListener() {
-        Button hlsButton = (Button) findViewById(R.id.hlsLiveButton);
+        Button hlsButton = findViewById(R.id.hlsLiveButton);
         hlsButton.setOnClickListener(view -> {
-            EditText editText = (EditText) findViewById(R.id.inputtext);
+            EditText editText = findViewById(R.id.inputtext);
             editText.setText(HLS_LIVE, TextView.BufferType.EDITABLE);
             editText.clearFocus();
         });
     }
 
     private void mpdVodButtonListener() {
-        Button hlsButton = (Button) findViewById(R.id.mpdVodButton);
+        Button hlsButton = findViewById(R.id.mpdVodButton);
         hlsButton.setOnClickListener(view -> {
-            EditText editText = (EditText) findViewById(R.id.inputtext);
+            EditText editText = findViewById(R.id.inputtext);
             editText.setText(MPD_VOD, TextView.BufferType.EDITABLE);
             editText.clearFocus();
         });
     }
 
     private void mpdLiveButtonListener() {
-        Button hlsButton = (Button) findViewById(R.id.mpdLiveButton);
+        Button hlsButton = findViewById(R.id.mpdLiveButton);
         hlsButton.setOnClickListener(view -> {
-            EditText editText = (EditText) findViewById(R.id.inputtext);
+            EditText editText = findViewById(R.id.inputtext);
             editText.setText(MPD_LIVE, TextView.BufferType.EDITABLE);
             editText.clearFocus();
         });
     }
 
     private void hlsLiveSsaiButtonListener() {
-        Button hlsButton = (Button) findViewById(R.id.hlsLiveSsaiButton);
+        Button hlsButton = findViewById(R.id.hlsLiveSsaiButton);
         hlsButton.setOnClickListener(view -> {
-            EditText editText = (EditText) findViewById(R.id.inputtext);
+            EditText editText = findViewById(R.id.inputtext);
             editText.setText(HLS_LIVE_SSAI, TextView.BufferType.EDITABLE);
             editText.clearFocus();
         });
     }
 
     private void loadButtonListener() {
-        Button button = (Button) findViewById(R.id.loadButton);
+        Button button = findViewById(R.id.loadButton);
         button.setOnClickListener(view -> {
-            PlayerView pv = (PlayerView) findViewById(R.id.exo_player_view);
+            PlayerView pv = findViewById(R.id.exo_player_view);
             pv.setVisibility(View.VISIBLE);
-            EditText editText = (EditText) findViewById(R.id.inputtext);
+            EditText editText = findViewById(R.id.inputtext);
             editText.clearFocus();
-            EditText inputText = (EditText) findViewById(R.id.inputtext);
+            EditText inputText = findViewById(R.id.inputtext);
             String message = inputText.getText().toString();
             if (isVideoUrl(message)) {
                 playStreamInPlayer(message);
@@ -201,9 +194,9 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         return path.endsWith(".m3u8") || path.endsWith(".mpd") || path.endsWith(".mp4");
     }
 
-    private void showDataButtonListener() {
-        Button button = (Button) findViewById(R.id.showDataButton);
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.hwMetrics);
+    private void debugButtonListener() {
+        ImageButton button = findViewById(R.id.debug_icon);
+        RelativeLayout layout = findViewById(R.id.hwMetrics);
         button.setOnClickListener(view -> {
             if(layout.getVisibility() == View.VISIBLE) {
                 System.out.println("Hiding metrics");
@@ -229,6 +222,13 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         updateMemoryMetrics();
         updateBatteryMetrics();
         updateCpuMetrics();
+        updateNetworkMetrics();
+    }
+
+    private void updateNetworkMetrics() {
+        TextView nwText = findViewById(R.id.nwText);
+        int bitrate = player.getVideoFormat() != null ? player.getVideoFormat().bitrate : 0;
+        nwText.setText("BR: " + (bitrate != 0 ? bitrate / 1000 : 0) + "kb/s");
     }
 
     private void updateCpuMetrics() {
@@ -264,12 +264,10 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     }
 
     private void updateBatteryMetrics() {
-        ProgressBar batteryBar = findViewById(R.id.batteryBar);
         TextView batteryText = findViewById(R.id.batteryText);
         Intent batteryStatus = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if(checkIfPluggedIn(batteryStatus)) {
             this.runOnUiThread(() -> {
-                batteryBar.setVisibility(View.GONE);
                 batteryText.setVisibility(View.GONE);
             });
         } else {
@@ -277,12 +275,10 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             int batteryScale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
             float batteryPercentage = batteryLvl * 100 / (float) batteryScale;
             this.runOnUiThread(() -> {
-                if(batteryBar.getVisibility() != View.VISIBLE) {
-                    batteryBar.setVisibility(View.VISIBLE);
+                if(batteryText.getVisibility() != View.VISIBLE) {
                     batteryText.setVisibility(View.VISIBLE);
                 }
-                batteryBar.setProgress(batteryLvl);
-                batteryText.setText(String.format("%.2f%%", (double) batteryPercentage));
+                batteryText.setText(String.format("Battery: %.2f%%", (double) batteryPercentage));
             });
         }
     }
@@ -294,15 +290,11 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
     private void updateMemoryMetrics() {
         ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-        ProgressBar memBar = findViewById(R.id.memBar);
         TextView memText = findViewById(R.id.memText);
-        Runtime info = Runtime.getRuntime();
         ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
         activityManager.getMemoryInfo(mem);
-        int percent = (int)Math.ceil((1.0 - ((double)mem.availMem / mem.totalMem)) * 100);
         this.runOnUiThread(() -> {
-            memBar.setProgress(percent);
-            memText.setText(String.format("%.2fGB", ((double)mem.availMem / 1024 / 1024 / 1024)));
+            memText.setText(String.format("Memory: %.2fGB", ((double)mem.availMem / 1024 / 1024 / 1024)));
         });
     }
 

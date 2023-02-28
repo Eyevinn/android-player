@@ -1,8 +1,7 @@
 <com.google.android.exoplayer2.ui.PlayerView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/exo_player_view"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/buttonpanel2"
     android:layout_marginTop="0dp"
     android:focusable="true"
     android:visibility="visible">

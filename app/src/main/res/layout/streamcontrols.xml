@@ -93,10 +93,6 @@
                 android:text="HLS_LIVE_SSAI" />
 
         </com.google.android.flexbox.FlexboxLayout>
-        <Button
-            android:id="@+id/showDataButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="SHOW DATA" />
+
     </LinearLayout>
 </RelativeLayout>
