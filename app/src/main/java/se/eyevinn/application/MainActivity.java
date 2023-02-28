@@ -4,7 +4,6 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Process;
@@ -12,12 +11,12 @@ import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -95,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             public void onIsPlayingChanged(boolean isPlaying) {
                 if (isPlaying) {
                     findViewById(R.id.streamControls).setVisibility(View.GONE);
+                    getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                     // Active playback.
                 } else {
                     // Not playing because playback is paused, ended, suppressed, or the player
@@ -102,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                     // player.getPlaybackState, player.getPlaybackSuppressionReason and
                     // player.getPlaybackError for details.
                     findViewById(R.id.streamControls).setVisibility(View.VISIBLE);
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                //(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 }
             }
         });
@@ -170,18 +172,19 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         });
     }
 
-    private void onSourcesLoaded(TaskGetSourceList.SourceList sourceList) {
+    private void onSourcesLoaded(TaskGetSourceList.SourceListLoaded sourceListLoaded) {
         LinearLayout buttonPanel1 = findViewById(R.id.buttonpanels);
         buttonPanel1.removeAllViews();
         FlexboxLayout flexbox = new FlexboxLayout(getApplicationContext());
         flexbox.setFlexDirection(FlexDirection.ROW);
         flexbox.setFlexWrap(FlexWrap.WRAP);
-        for(TaskGetSourceList.Source s : sourceList.getSourceList()) {
+        for(TaskGetSourceList.Source s : sourceListLoaded.getSourceList()) {
             Button b = new Button(this);
             b.setText(s.getName());
-            b.setTooltipText(s.getUrl());
+            String fullUrl = sourceListLoaded.getSourceListUrl().resolve(s.getUrl()).toString();
+            b.setTooltipText(fullUrl);
             b.setOnClickListener(view -> {
-                playStreamInPlayer(s.getUrl());
+                playStreamInPlayer(fullUrl);
             });
            flexbox.addView(b);
         }

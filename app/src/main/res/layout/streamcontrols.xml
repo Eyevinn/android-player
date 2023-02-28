@@ -93,6 +93,5 @@
                 android:text="HLS_LIVE_SSAI" />
 
         </com.google.android.flexbox.FlexboxLayout>
-
     </LinearLayout>
 </RelativeLayout>
