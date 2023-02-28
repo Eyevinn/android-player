@@ -4,11 +4,6 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-<<<<<<< HEAD
-=======
-import android.content.res.Configuration;
-import android.content.res.Resources;
->>>>>>> fa9a6c5842be87cdb5292b614b99b6fd229161a5
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Process;
@@ -19,7 +14,6 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.GridLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -39,13 +33,10 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
 
-<<<<<<< HEAD
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-=======
 import java.net.URI;
->>>>>>> fa9a6c5842be87cdb5292b614b99b6fd229161a5
 import java.util.Timer;
 import java.util.TimerTask;
 
