@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +15,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.GridLayout;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -28,7 +31,11 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.flexbox.FlexDirection;
+import com.google.android.flexbox.FlexWrap;
+import com.google.android.flexbox.FlexboxLayout;
 
+import java.net.URI;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -147,8 +154,37 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             editText.clearFocus();
             EditText inputText = (EditText) findViewById(R.id.inputtext);
             String message = inputText.getText().toString();
-            playStreamInPlayer(message);
+            if (isVideoUrl(message)) {
+                playStreamInPlayer(message);
+            } else {
+                new TaskGetSourceList((sourceList -> { onSourcesLoaded(sourceList); }))
+                        .execute(message);
+            }
         });
+    }
+
+    private void onSourcesLoaded(TaskGetSourceList.SourceList sourceList) {
+        LinearLayout buttonPanel1 = findViewById(R.id.buttonpanels);
+        buttonPanel1.removeAllViews();
+        FlexboxLayout flexbox = new FlexboxLayout(getApplicationContext());
+        flexbox.setFlexDirection(FlexDirection.ROW);
+        flexbox.setFlexWrap(FlexWrap.WRAP);
+        for(TaskGetSourceList.Source s : sourceList.getSourceList()) {
+            Button b = new Button(this);
+            b.setText(s.getName());
+            b.setTooltipText(s.getUrl());
+            b.setOnClickListener(view -> {
+                playStreamInPlayer(s.getUrl());
+            });
+           flexbox.addView(b);
+        }
+        buttonPanel1.addView(flexbox);
+    }
+
+    private boolean isVideoUrl(String url) {
+        URI uri = URI.create(url);
+        String path = uri.getPath();
+        return path.endsWith(".m3u8") || path.endsWith(".mpd") || path.endsWith(".mp4");
     }
 
     private void showDataButtonListener() {
