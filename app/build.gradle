@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "se.eyevinn.appliation"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode 1
         versionName "1.0"
 
@@ -39,14 +39,14 @@ dependencies {
     implementation 'androidx.core:core-ktx:1.3.1'
     implementation 'junit:junit:4.12'
     implementation 'androidx.appcompat:appcompat:1.2.0'
-    if (Boolean.valueOf(project.property("vnovaExoplayer"))) {
-        implementation files('../vnova-libs/all/library-release.aar')
-        implementation files('../vnova-libs/core/library-core-release.aar')
-        implementation files('../vnova-libs/ui/library-ui-release.aar')
-        implementation files('../vnova-libs/dash/library-dash-release.aar')
-        implementation files('../vnova-libs/hls/library-hls-release.aar')
-        implementation files('../vnova-libs/common/library-common-release.aar')
-        implementation files('../vnova-libs/extractor/library-extractor-release.aar')
+    if (Boolean.valueOf(project.property("customExoplayer"))) {
+        implementation files('../custom-exoplayer-libs/all/library-release.aar')
+        implementation files('../custom-exoplayer-libs/core/library-core-release.aar')
+        implementation files('../custom-exoplayer-libs/ui/library-ui-release.aar')
+        implementation files('../custom-exoplayer-libs/dash/library-dash-release.aar')
+        implementation files('../custom-exoplayer-libs/hls/library-hls-release.aar')
+        implementation files('../custom-exoplayer-libs/common/library-common-release.aar')
+        implementation files('../custom-exoplayer-libs/extractor/library-extractor-release.aar')
         implementation("com.google.guava:guava:31.1-jre")
     } else {
         implementation 'com.google.android.exoplayer:exoplayer-core:2.12.0'
