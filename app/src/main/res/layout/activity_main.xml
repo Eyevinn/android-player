@@ -11,11 +11,11 @@
     <include
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/streamcontrols"
-        layout="@layout/playerview" />
+        android:layout_below="@layout/streamcontrols"
+        layout="@layout/playerview"/>
     <include
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/playerview"
+        android:layout_below="@layout/playerview"
         layout="@layout/debugview"/>
 </LinearLayout>
