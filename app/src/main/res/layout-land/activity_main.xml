@@ -5,7 +5,16 @@
     android:layout_marginTop="0dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <include layout="@layout/playerview" />
     <include layout="@layout/streamcontrols" />
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/streamcontrols"
+        layout="@layout/playerview" />
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/playerview"
+        layout="@layout/debugview"/>
 
 </RelativeLayout>

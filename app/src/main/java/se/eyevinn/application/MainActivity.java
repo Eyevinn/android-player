@@ -1,14 +1,16 @@
 package se.eyevinn.application;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.os.BatteryManager;
 import android.os.Bundle;
-import android.os.Handler;
+import android.os.Debug;
+import android.os.Process;
+import android.os.SystemClock;
+import android.system.Os;
+import android.system.OsConstants;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -31,9 +33,7 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.text.NumberFormat;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -48,8 +48,12 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
     private static final String TAG = "MainActivity";
     private SimpleExoPlayer player;
-    private final Handler mainHandler = new Handler();
     private Timer timer;
+    private static long numCores = Os.sysconf(OsConstants._SC_NPROCESSORS_CONF);
+    private static long clockSpeedHz = Os.sysconf(OsConstants._SC_CLK_TCK);
+    private static int appPID = Process.myPid();
+    private static CpuMetrics cpuMetrics = new CpuMetrics();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         player.addListener(new Player.Listener(){
             @Override
             public void onIsPlayingChanged(boolean isPlaying) {
-                if (isPlaying && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                if (isPlaying) {
                     findViewById(R.id.streamControls).setVisibility(View.GONE);
                     // Active playback.
                 } else {
@@ -165,6 +169,8 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                 layout.setVisibility(View.GONE);
                 timer.cancel();
             } else {
+//                startTime = System.currentTimeMillis();
+                cpuMetrics.setStartTime(System.currentTimeMillis());
                 timer = new Timer();
                 layout.setVisibility(View.VISIBLE);
                 System.out.println("Showing metrics");
@@ -185,20 +191,40 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     }
 
     private void updateCpuMetrics() {
-        ProgressBar cpuBar = (ProgressBar) findViewById(R.id.cpuBar);
-        TextView cpuText = (TextView) findViewById(R.id.cpuText);
+        TextView cpuText = findViewById(R.id.cpuText);
         try {
-            CpuUtilizationTask cpuUtilizationTask = new CpuUtilizationTask();
-            cpuUtilizationTask.run();
+            File file = new File(String.format("/proc/%s/stat", appPID));
+            Scanner reader = new Scanner(file);
+            String statResult = "";
+            while(reader.hasNextLine()) {
+                statResult += reader.nextLine();
+            }
+            long currTime = System.currentTimeMillis();
+            String[] splitStatResult = statResult.split(" ");
+
+            float cpuTimeSec = calcCpuTime(splitStatResult, cpuMetrics);
+            float avgCpuUsage = ((100 * (cpuTimeSec - cpuMetrics.getCpuTimeSec() / (currTime - cpuMetrics.getStartTime()))) / numCores);
+            cpuText.setText(String.format("CPU: %.2f%%", (double) Math.abs(avgCpuUsage)));
+            cpuMetrics.updateCpuMetrics(currTime, cpuTimeSec);
+            cpuMetrics.updateStatMetrics(splitStatResult);
+            reader.close();
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
 
+    private float calcCpuTime(String[] stat, CpuMetrics cpuMetrics) {
+        int dUTime = Integer.parseInt(stat[14]) - cpuMetrics.getUtime();
+        int dSTime = Integer.parseInt(stat[15]) - cpuMetrics.getStime();
+        int dCuTime = Integer.parseInt(stat[16]) - cpuMetrics.getCutime();
+        int dCsTime = Integer.parseInt(stat[17]) - cpuMetrics.getCstime();
+
+        return (float)(dUTime + dSTime + dCuTime + dCsTime) / clockSpeedHz;
     }
 
     private void updateBatteryMetrics() {
-        ProgressBar batteryBar = (ProgressBar) findViewById(R.id.batteryBar);
-        TextView batteryText = (TextView) findViewById(R.id.batteryText);
+        ProgressBar batteryBar = findViewById(R.id.batteryBar);
+        TextView batteryText = findViewById(R.id.batteryText);
         Intent batteryStatus = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if(checkIfPluggedIn(batteryStatus)) {
             this.runOnUiThread(() -> {
@@ -227,8 +253,9 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
     private void updateMemoryMetrics() {
         ActivityManager activityManager = (ActivityManager) this.getSystemService(ACTIVITY_SERVICE);
-        ProgressBar memBar = (ProgressBar) findViewById(R.id.memBar);
-        TextView memText = (TextView) findViewById(R.id.memText);
+        ProgressBar memBar = findViewById(R.id.memBar);
+        TextView memText = findViewById(R.id.memText);
+        Runtime info = Runtime.getRuntime();
         ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
         activityManager.getMemoryInfo(mem);
         int percent = (int)Math.ceil((1.0 - ((double)mem.availMem / mem.totalMem)) * 100);
@@ -267,6 +294,9 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         player.release();
     }
 
+
+
+
     private class MyFocusChangeListener implements View.OnFocusChangeListener {
         public void onFocusChange(View v, boolean hasFocus) {
             if (v.getId() == R.id.inputtext && !hasFocus) {
@@ -274,59 +304,5 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
             }
         }
-    }
-
-    static class CpuUtilizationTask extends TimerTask {
-
-        private final String STAT_FILE_HEADER = "cpu  ";
-        private final NumberFormat percentFormatter;
-        private final RandomAccessFile statPointer;
-        long previousIdleTime = 0, previousTotalTime = 0;
-
-        public CpuUtilizationTask() throws FileNotFoundException {
-            this.percentFormatter = NumberFormat.getPercentInstance();
-            percentFormatter.setMaximumFractionDigits(2);
-            File statFile = new File("/proc/stat");
-            /* by using the RandomAcessFile, we're able to keep an open file stream for
-             * as long as this object lives, making further file openings unnecessary */
-            this.statPointer = new RandomAccessFile(statFile, "r");
-        }
-
-        @Override
-        public void run() {
-
-            try {
-                String[] values = statPointer.readLine()
-                        .substring(STAT_FILE_HEADER.length())
-                        .split(" ");
-
-                /* because Java doesn't have unsigned primitive types, we have to use the boxed
-                 * Long's parseUsigned method. It does what it says it does.
-                 * The rest of the arithmetic can go on as normal.
-                 * I've seen solutions reading the value as integers. They're NOT!*/
-                long idleTime = Long.parseUnsignedLong(values[3]);
-                long totalTime = 0L;
-                for (String value : values) {
-                    totalTime += Long.parseUnsignedLong(value);
-                }
-
-                long idleTimeDelta = idleTime - previousIdleTime;
-                long totalTimeDelta = totalTime - previousTotalTime;
-                double utilization = 1 - ((double) idleTimeDelta) / totalTimeDelta;
-
-                /* Again, this is showing one more advantage of doing idiomatic Java
-                 * we're doing locale aware percentage formatting */
-                System.out.println(percentFormatter.format(utilization));
-
-                previousIdleTime = idleTime;
-                previousTotalTime = totalTime;
-
-                // take us back to the beginning of the file, so we don't have to reopen it
-                statPointer.seek(0);
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            }
-        }
-
     }
 }
