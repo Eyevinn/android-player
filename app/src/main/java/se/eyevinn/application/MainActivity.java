@@ -9,6 +9,8 @@ import android.net.TrafficStats;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Process;
+import android.system.Os;
+import android.system.OsConstants;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -42,6 +44,10 @@ import java.net.URI;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import se.eyevinn.application.video.DefaultVideoSources;
+import se.eyevinn.application.video.VideoSource;
+import se.eyevinn.application.video.VideoSourceList;
+
 
 public class MainActivity extends AppCompatActivity implements VideoRendererEventListener {
 
@@ -54,6 +60,11 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     private static final String TAG = "MainActivity";
     private SimpleExoPlayer player;
     private Timer timer;
+
+    private VideoSourceList videoSourceList;
+    private static final long numCores = Os.sysconf(OsConstants._SC_NPROCESSORS_CONF);
+    private static final long clockSpeedHz = Os.sysconf(OsConstants._SC_CLK_TCK);
+
     private static final int appPID = Process.myPid();
     private static final int appUID = Process.myUid();
 
@@ -70,12 +81,9 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setupPlayer();
+        videoSourceList = DefaultVideoSources.getDefaultVideoSources();
         loadButtonListener();
-        hlsVodButtonListener();
-        mpdVodButtonListener();
-        hlsLiveButtonListener();
-        mpdLiveButtonListener();
-        hlsLiveSsaiButtonListener();
+        onSourcesLoaded(new TaskGetSourceList.SourceListLoaded(videoSourceList, null));
         debugButtonListener();
     }
 
@@ -89,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                     .build();
         }
         PlayerView playerView = findViewById(R.id.exo_player_view);
+
         playerView.setPlayer(player);
         playerView.setResizeMode(AspectRatioFrameLayout.RESIZE_MODE_FIT);
         EditText edtView = findViewById(R.id.inputtext);
@@ -112,51 +121,6 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                 //(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
                 }
             }
-        });
-    }
-
-    private void hlsVodButtonListener() {
-        Button hlsButton = findViewById(R.id.hlsVodButton);
-        hlsButton.setOnClickListener(view -> {
-            EditText editText = findViewById(R.id.inputtext);
-            editText.setText(HLS_VOD, TextView.BufferType.EDITABLE);
-            editText.clearFocus();
-        });
-    }
-
-    private void hlsLiveButtonListener() {
-        Button hlsButton = findViewById(R.id.hlsLiveButton);
-        hlsButton.setOnClickListener(view -> {
-            EditText editText = findViewById(R.id.inputtext);
-            editText.setText(HLS_LIVE, TextView.BufferType.EDITABLE);
-            editText.clearFocus();
-        });
-    }
-
-    private void mpdVodButtonListener() {
-        Button hlsButton = findViewById(R.id.mpdVodButton);
-        hlsButton.setOnClickListener(view -> {
-            EditText editText = findViewById(R.id.inputtext);
-            editText.setText(MPD_VOD, TextView.BufferType.EDITABLE);
-            editText.clearFocus();
-        });
-    }
-
-    private void mpdLiveButtonListener() {
-        Button hlsButton = findViewById(R.id.mpdLiveButton);
-        hlsButton.setOnClickListener(view -> {
-            EditText editText = findViewById(R.id.inputtext);
-            editText.setText(MPD_LIVE, TextView.BufferType.EDITABLE);
-            editText.clearFocus();
-        });
-    }
-
-    private void hlsLiveSsaiButtonListener() {
-        Button hlsButton = findViewById(R.id.hlsLiveSsaiButton);
-        hlsButton.setOnClickListener(view -> {
-            EditText editText = findViewById(R.id.inputtext);
-            editText.setText(HLS_LIVE_SSAI, TextView.BufferType.EDITABLE);
-            editText.clearFocus();
         });
     }
 
@@ -188,10 +152,11 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         FlexboxLayout flexbox = new FlexboxLayout(getApplicationContext());
         flexbox.setFlexDirection(FlexDirection.ROW);
         flexbox.setFlexWrap(FlexWrap.WRAP);
-        for(TaskGetSourceList.Source s : sourceListLoaded.getSourceList()) {
+        for(VideoSource s : sourceListLoaded.getSourceList()) {
             Button b = new Button(this);
             b.setText(s.getName());
-            String fullUrl = sourceListLoaded.getSourceListUrl().resolve(s.getUrl()).toString();
+            URI baseUri = sourceListLoaded.getSourceListUrl();
+            String fullUrl = baseUri != null ? baseUri.resolve(s.getUrl()).toString() : s.getUrl();
             b.setTooltipText(fullUrl);
             b.setOnClickListener(view -> {
                 playStreamInPlayer(fullUrl);

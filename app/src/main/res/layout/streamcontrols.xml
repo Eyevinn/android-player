@@ -61,37 +61,6 @@
             app:flexDirection="row"
             app:flexWrap="wrap">
 
-            <Button
-                android:id="@+id/hlsVodButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="HLS VOD" />
-
-            <Button
-                android:id="@+id/mpdVodButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="MPD_VOD" />
-
-            <Button
-                android:id="@+id/hlsLiveButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="HLS_LIVE" />
-
-            <Button
-                android:id="@+id/mpdLiveButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:text="MPD_LIVE" />
-
-
-            <Button
-                android:id="@+id/hlsLiveSsaiButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="HLS_LIVE_SSAI" />
-
         </com.google.android.flexbox.FlexboxLayout>
     </LinearLayout>
 </RelativeLayout>

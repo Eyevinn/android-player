@@ -27,7 +27,7 @@ Eyevinn Andriod app to test HLS and MPEG-dash stream.
 - Load button to start the selected video stream.
 - User can add valid HLS/Mpeg-Dash video.
 
-# Load list of sources from URL
+# Load list of videoSources from URL
 A json document containing a list of video urls can be loaded by entering
 the url to the json document in the textinput and pressing the `load` button.
 For each video in the json document, a button to play the video will appear
@@ -36,7 +36,7 @@ in the ui.
 Example json document
 ```
 {
-    "sourceList": [
+    "videoSourceList": [
         {
             "name": "HLS_VOD",
             "url": "https://f53accc45b7aded64ed8085068f31881.egress.mediapackage-vod.eu-north-1.amazonaws.com/out/v1/1c63bf88e2664639a6c293b4d055e6bb/ade303f83e8444d69b7658f988abb054/2a647c0cf9b7409598770b9f11799178/manifest.m3u8"
