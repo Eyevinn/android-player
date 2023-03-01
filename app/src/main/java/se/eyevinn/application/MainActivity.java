@@ -54,8 +54,6 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     private static final String TAG = "MainActivity";
     private SimpleExoPlayer player;
     private Timer timer;
-    private static final long numCores = Os.sysconf(OsConstants._SC_NPROCESSORS_CONF);
-    private static final long clockSpeedHz = Os.sysconf(OsConstants._SC_CLK_TCK);
     private static final int appPID = Process.myPid();
     private static final CpuMetrics cpuMetrics = new CpuMetrics();
 
@@ -228,6 +226,14 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         updateBatteryMetrics();
         updateCpuMetrics();
         updateNetworkMetrics();
+        updateFPSMetrics();
+    }
+
+    private void updateFPSMetrics() {
+        TextView fpsText = findViewById(R.id.fpsText);
+        float fps = (player.getVideoFormat() != null && player.getVideoFormat().frameRate != -1) ? player.getVideoFormat().frameRate : 0;
+        String fpsString = fps != 0 ? String.format("%.2f", fps) : "N/A";
+        fpsText.setText(String.format("Frame rate: %s", fpsString));
     }
 
     private void updateNetworkMetrics() {
@@ -248,8 +254,8 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             long currTime = System.currentTimeMillis();
             String[] splitStatResult = statResult.split(" ");
 
-            float cpuTimeSec = calcCpuTime(splitStatResult, cpuMetrics);
-            float avgCpuUsage = ((100 * (cpuTimeSec - cpuMetrics.getCpuTimeSec() / (currTime - cpuMetrics.getStartTime()))) / numCores);
+            float cpuTimeSec = cpuMetrics.calcCpuTime(splitStatResult);
+            float avgCpuUsage = cpuMetrics.calcAvgCpuUsage (currTime);
             cpuText.setText(String.format("CPU: %.2f%%", (double) Math.abs(avgCpuUsage)));
             cpuMetrics.updateCpuMetrics(currTime, cpuTimeSec);
             cpuMetrics.updateStatMetrics(splitStatResult);
@@ -259,21 +265,12 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         }
     }
 
-    private float calcCpuTime(String[] stat, CpuMetrics cpuMetrics) {
-        int dUTime = Integer.parseInt(stat[14]) - cpuMetrics.getUtime();
-        int dSTime = Integer.parseInt(stat[15]) - cpuMetrics.getStime();
-        int dCuTime = Integer.parseInt(stat[16]) - cpuMetrics.getCutime();
-        int dCsTime = Integer.parseInt(stat[17]) - cpuMetrics.getCstime();
-
-        return (float)(dUTime + dSTime + dCuTime + dCsTime) / clockSpeedHz;
-    }
-
     private void updateBatteryMetrics() {
         TextView batteryText = findViewById(R.id.batteryText);
         Intent batteryStatus = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if(checkIfPluggedIn(batteryStatus)) {
             this.runOnUiThread(() -> {
-                batteryText.setVisibility(View.GONE);
+                batteryText.setText("Battery: A/C");
             });
         } else {
             int batteryLvl = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
@@ -281,7 +278,6 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             float batteryPercentage = batteryLvl * 100 / (float) batteryScale;
             this.runOnUiThread(() -> {
                 if(batteryText.getVisibility() != View.VISIBLE) {
-                    batteryText.setVisibility(View.VISIBLE);
                 }
                 batteryText.setText(String.format("Battery: %.2f%%", (double) batteryPercentage));
             });
