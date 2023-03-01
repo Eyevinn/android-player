@@ -240,14 +240,16 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
     private void updateNetworkMetrics() {
         TextView nwText = findViewById(R.id.nwText);
-        if(TrafficStats.getUidRxBytes(appUID) == -1) {
+        if(TrafficStats.getUidRxBytes(appUID) == TrafficStats.UNSUPPORTED) {
             long rxBytes = TrafficStats.getTotalRxBytes();
-            displayedBitrate = ((rxBytes - prevRxBytes) * 8 / 1000);
+            long bitrate = (rxBytes - prevRxBytes) * 8;
+            displayedBitrate = bitrate > 0 ? (bitrate / 1000) : displayedBitrate;
             this.runOnUiThread(() -> nwText.setText("Device bitrate: " + displayedBitrate + "kb/s"));
             prevRxBytes = rxBytes;
         } else {
             long rxBytes = TrafficStats.getUidRxBytes(appUID);
-            displayedBitrate = ((rxBytes - prevRxBytes) * 8 / 1000);
+            long bitrate = (rxBytes - prevRxBytes) * 8;
+            displayedBitrate = bitrate > 0 ? (bitrate / 1000) : displayedBitrate;
             this.runOnUiThread(() -> nwText.setText("App bitrate: " + displayedBitrate + "kb/s"));
             prevRxBytes = rxBytes;
         }
