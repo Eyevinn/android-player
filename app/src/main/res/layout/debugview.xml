@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
+
         <ImageButton
             android:id="@+id/debug_icon"
             android:layout_width="40dp"
@@ -24,6 +25,18 @@
             android:background="@drawable/border"
             android:orientation="vertical"
             android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/squareLogo"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="5dp"
+                android:alpha="0.5"
+                android:adjustViewBounds="true"
+                android:scaleType="fitEnd"
+                android:src="@drawable/eyevinn_logo_square" />
 
             <TextView
                 android:id="@+id/memText"
@@ -66,7 +79,7 @@
                 android:id="@+id/cpuText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
+                android:layout_toLeftOf="@id/squareLogo"
                 android:layout_marginRight="20dp"
                 android:maxWidth="120dp"
                 android:maxHeight="24dp"
@@ -84,7 +97,7 @@
                 android:id="@+id/nwText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
+                android:layout_toLeftOf="@id/squareLogo"
                 android:layout_marginRight="20dp"
                 android:layout_below="@id/cpuText"
                 android:maxWidth="120dp"

@@ -16,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     private static final long clockSpeedHz = Os.sysconf(OsConstants._SC_CLK_TCK);
     private static final int appPID = Process.myPid();
     private static final CpuMetrics cpuMetrics = new CpuMetrics();
+
 
 
     @Override
@@ -206,10 +208,10 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                 layout.setVisibility(View.GONE);
                 timer.cancel();
             } else {
-//                startTime = System.currentTimeMillis();
                 cpuMetrics.setStartTime(System.currentTimeMillis());
                 timer = new Timer();
                 layout.setVisibility(View.VISIBLE);
+
                 System.out.println("Showing metrics");
                 timer.scheduleAtFixedRate(new TimerTask() {
                     @Override
@@ -335,9 +337,6 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         Log.v(TAG, "onDestroy()...");
         player.release();
     }
-
-
-
 
     private class MyFocusChangeListener implements View.OnFocusChangeListener {
         public void onFocusChange(View v, boolean hasFocus) {
