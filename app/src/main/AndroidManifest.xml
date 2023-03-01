@@ -17,7 +17,8 @@
         android:usesCleartextTraffic="true">
         <activity
             android:name="se.eyevinn.application.MainActivity"
-            android:exported="true" >
+            android:exported="true"
+            android:configChanges="keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
