@@ -4,11 +4,10 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.net.TrafficStats;
 import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Process;
-import android.system.Os;
-import android.system.OsConstants;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
@@ -16,7 +15,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -55,6 +53,10 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     private SimpleExoPlayer player;
     private Timer timer;
     private static final int appPID = Process.myPid();
+    private static final int appUID = Process.myUid();
+
+    private long prevRxBytes = TrafficStats.getTotalRxBytes();
+    private long displayedBitrate = 0;
     private static final CpuMetrics cpuMetrics = new CpuMetrics();
 
 
@@ -231,15 +233,24 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
     private void updateFPSMetrics() {
         TextView fpsText = findViewById(R.id.fpsText);
-        float fps = (player.getVideoFormat() != null && player.getVideoFormat().frameRate != -1) ? player.getVideoFormat().frameRate : 0;
+        float fps = (player.getVideoFormat() != null && player.getVideoFormat().frameRate > 0.0f) ? player.getVideoFormat().frameRate : 0;
         String fpsString = fps != 0 ? String.format("%.2f", fps) : "N/A";
-        fpsText.setText(String.format("Frame rate: %s", fpsString));
+        this.runOnUiThread(() -> fpsText.setText(String.format("Frame rate: %s", fpsString)));
     }
 
     private void updateNetworkMetrics() {
         TextView nwText = findViewById(R.id.nwText);
-        int bitrate = player.getVideoFormat() != null ? player.getVideoFormat().bitrate : 0;
-        nwText.setText("BR: " + (bitrate != 0 ? bitrate / 1000 : 0) + "kb/s");
+        if(TrafficStats.getUidRxBytes(appUID) == -1) {
+            long rxBytes = TrafficStats.getTotalRxBytes();
+            displayedBitrate = ((rxBytes - prevRxBytes) * 8 / 1000);
+            this.runOnUiThread(() -> nwText.setText("Device bitrate: " + displayedBitrate + "kb/s"));
+            prevRxBytes = rxBytes;
+        } else {
+            long rxBytes = TrafficStats.getUidRxBytes(appUID);
+            displayedBitrate = ((rxBytes - prevRxBytes) * 8 / 1000);
+            this.runOnUiThread(() -> nwText.setText("App bitrate: " + displayedBitrate + "kb/s"));
+            prevRxBytes = rxBytes;
+        }
     }
 
     private void updateCpuMetrics() {
@@ -256,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
             float cpuTimeSec = cpuMetrics.calcCpuTime(splitStatResult);
             float avgCpuUsage = cpuMetrics.calcAvgCpuUsage (currTime);
-            cpuText.setText(String.format("CPU: %.2f%%", (double) Math.abs(avgCpuUsage)));
+            this.runOnUiThread(() -> cpuText.setText(String.format("CPU: %.2f%%", (double) Math.abs(avgCpuUsage))));
             cpuMetrics.updateCpuMetrics(currTime, cpuTimeSec);
             cpuMetrics.updateStatMetrics(splitStatResult);
             reader.close();
@@ -269,9 +280,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         TextView batteryText = findViewById(R.id.batteryText);
         Intent batteryStatus = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if(checkIfPluggedIn(batteryStatus)) {
-            this.runOnUiThread(() -> {
-                batteryText.setText("Battery: A/C");
-            });
+            this.runOnUiThread(() -> batteryText.setText("Battery: A/C"));
         } else {
             int batteryLvl = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
             int batteryScale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);

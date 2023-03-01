@@ -3,6 +3,6 @@
     android:shape="rectangle">
     <solid android:color="@color/exo_black_opacity_70" />
     <stroke
-        android:width="2dip"
+        android:width="1dip"
         android:color="@android:color/holo_blue_light" />
 </shape>
