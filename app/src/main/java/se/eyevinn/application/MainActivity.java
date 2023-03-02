@@ -1,17 +1,27 @@
 package se.eyevinn.application;
 
-import android.annotation.SuppressLint;
+
+import static android.view.KeyEvent.KEYCODE_MEDIA_FAST_FORWARD;
+import static android.view.KeyEvent.KEYCODE_MEDIA_NEXT;
+import static android.view.KeyEvent.KEYCODE_MEDIA_PAUSE;
+import static android.view.KeyEvent.KEYCODE_MEDIA_PLAY;
+import static android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE;
+import static android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS;
+import static android.view.KeyEvent.KEYCODE_MEDIA_REWIND;
+import static android.view.KeyEvent.KEYCODE_MEDIA_SKIP_BACKWARD;
+import static android.view.KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD;
+import static android.view.KeyEvent.KEYCODE_MEDIA_STEP_BACKWARD;
+import static android.view.KeyEvent.KEYCODE_MEDIA_STEP_FORWARD;
+
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.net.TrafficStats;
-import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Process;
 import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
@@ -39,8 +49,10 @@ import com.google.android.flexbox.FlexboxLayout;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -74,7 +86,29 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     private long numTicks = 0;
     private static final CpuMetrics cpuMetrics = new CpuMetrics();
 
+    private static final List<Integer> mediaKeyCodes = Arrays.asList(
+            KEYCODE_MEDIA_SKIP_BACKWARD,
+            KEYCODE_MEDIA_SKIP_FORWARD,
+            KEYCODE_MEDIA_REWIND,
+            KEYCODE_MEDIA_FAST_FORWARD,
+            KEYCODE_MEDIA_PLAY_PAUSE,
+            KEYCODE_MEDIA_PLAY,
+            KEYCODE_MEDIA_PAUSE,
+            KEYCODE_MEDIA_PREVIOUS,
+            KEYCODE_MEDIA_NEXT,
+            KEYCODE_MEDIA_STEP_BACKWARD,
+            KEYCODE_MEDIA_STEP_FORWARD
+    );
 
+    @Override
+    public boolean dispatchKeyEvent(KeyEvent keyEvent) {
+        System.out.println("KeyEvent: " + keyEvent);
+        if ( mediaKeyCodes.contains(keyEvent.getKeyCode())) {
+            findViewById(R.id.exo_player_view).dispatchKeyEvent(keyEvent);
+            return true;
+        }
+        return super.dispatchKeyEvent(keyEvent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -318,7 +352,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         } else {
             Log.v(TAG, "Invalid url");
         }
-        player.setPlayWhenReady(true);
+        player.setPlayWhenReady(false);
         player.seekTo(0, 0);
         player.prepare();
     }
