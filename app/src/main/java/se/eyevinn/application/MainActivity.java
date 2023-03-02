@@ -1,5 +1,6 @@
 package se.eyevinn.application;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.util.MimeTypes;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.google.android.exoplayer2.video.VideoSize;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
     private long prevRxBytes = TrafficStats.getTotalRxBytes();
     private long displayedBitrate = 0;
+    private long totBitrate = 0;
+    private long numTicks = 0;
     private static final CpuMetrics cpuMetrics = new CpuMetrics();
 
 
@@ -171,6 +175,10 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                 new TaskGetSourceList((sourceList -> { onSourcesLoaded(sourceList); }))
                         .execute(message);
             }
+            if(totBitrate != 0) {
+                totBitrate = 0;
+                numTicks = 0;
+            }
         });
     }
 
@@ -225,10 +233,11 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
     private void getHardwareMetrics() {
         updateMemoryMetrics();
-        updateBatteryMetrics();
+        updateResolutionMetrics();
         updateCpuMetrics();
         updateNetworkMetrics();
         updateFPSMetrics();
+        updateCodecMetrics();
     }
 
     private void updateFPSMetrics() {
@@ -239,20 +248,30 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     }
 
     private void updateNetworkMetrics() {
-        TextView nwText = findViewById(R.id.nwText);
+
         if(TrafficStats.getUidRxBytes(appUID) == TrafficStats.UNSUPPORTED) {
             long rxBytes = TrafficStats.getTotalRxBytes();
-            long bitrate = (rxBytes - prevRxBytes) * 8;
-            displayedBitrate = bitrate > 0 ? (bitrate / 1000) : displayedBitrate;
-            this.runOnUiThread(() -> nwText.setText("Device bitrate: " + displayedBitrate + "kb/s"));
-            prevRxBytes = rxBytes;
+            updateBitrate(rxBytes);
         } else {
             long rxBytes = TrafficStats.getUidRxBytes(appUID);
-            long bitrate = (rxBytes - prevRxBytes) * 8;
-            displayedBitrate = bitrate > 0 ? (bitrate / 1000) : displayedBitrate;
-            this.runOnUiThread(() -> nwText.setText("App bitrate: " + displayedBitrate + "kb/s"));
-            prevRxBytes = rxBytes;
+            updateBitrate(rxBytes);
         }
+    }
+
+    private void updateBitrate(long rxBytes) {
+        TextView nwText = findViewById(R.id.nwText);
+        TextView avgNwText = findViewById(R.id.avgNwText);
+
+        displayedBitrate = (rxBytes - prevRxBytes) * 8 / 1000;
+        this.runOnUiThread(() -> {
+            if(player.isPlaying()) {
+                numTicks++;
+                totBitrate += displayedBitrate;
+            }
+                nwText.setText("App bitrate: " + displayedBitrate + "kb/s");
+                avgNwText.setText("Avg bitrate: " + (int)(totBitrate / (numTicks != 0 ? numTicks : 1)) + "kb/s");
+        });
+        prevRxBytes = rxBytes;
     }
 
     private void updateCpuMetrics() {
@@ -278,26 +297,27 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         }
     }
 
-    private void updateBatteryMetrics() {
-        TextView batteryText = findViewById(R.id.batteryText);
-        Intent batteryStatus = this.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-        if(checkIfPluggedIn(batteryStatus)) {
-            this.runOnUiThread(() -> batteryText.setText("Battery: A/C"));
+    private void updateResolutionMetrics() {
+        TextView resText = findViewById(R.id.resText);
+        if(player.getVideoSize() != null) {
+            VideoSize videoSize =  player.getVideoSize();
+            this.runOnUiThread(() -> resText.setText(String.format("Resolution: %sX%s", videoSize.width, videoSize.height)));
         } else {
-            int batteryLvl = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-            int batteryScale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
-            float batteryPercentage = batteryLvl * 100 / (float) batteryScale;
             this.runOnUiThread(() -> {
-                if(batteryText.getVisibility() != View.VISIBLE) {
-                }
-                batteryText.setText(String.format("Battery: %.2f%%", (double) batteryPercentage));
+                resText.setText("Resolution: Not available");
             });
         }
     }
 
-    private boolean checkIfPluggedIn(Intent intent) {
-        int isPlugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
-        return isPlugged != 0;
+    private void updateCodecMetrics() {
+        TextView resText = findViewById(R.id.codecText);
+        if(player.getVideoFormat() != null && player.getVideoFormat().codecs != null) {
+            this.runOnUiThread(() -> resText.setText(String.format("Codec: %s", player.getVideoFormat().codecs)));
+        } else {
+            this.runOnUiThread(() -> {
+                resText.setText("Codec: Not available");
+            });
+        }
     }
 
     private void updateMemoryMetrics() {
