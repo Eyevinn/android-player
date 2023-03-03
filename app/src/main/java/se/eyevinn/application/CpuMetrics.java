@@ -45,7 +45,7 @@ public class CpuMetrics {
         return (float)(dUTime + dSTime + dCuTime + dCsTime) / this.clockSpeedHz;
     }
 
-    public float calcAvgCpuUsage(long currTime) {
+    public float calcCurrCpuUsage(long currTime) {
         return (float)((100 * (this.cpuTimeSec - this.getCpuTimeSec() / (currTime - this.getStartTime()))) / this.numCores);
     }
 
@@ -61,10 +61,6 @@ public class CpuMetrics {
 
     public float getCpuTimeSec() {
         return cpuTimeSec;
-    }
-
-    public void setCpuTimeSec(float cpuTimeSec) {
-        this.cpuTimeSec = cpuTimeSec;
     }
 
     public int getUtime() {

@@ -140,12 +140,32 @@
                 android:textColor="#FFFFFF" />
 
             <TextView
-                android:id="@+id/nwText"
+                android:id="@+id/avgCpuText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toLeftOf="@id/squareLogo"
                 android:layout_marginRight="20dp"
                 android:layout_below="@id/cpuText"
+                android:maxWidth="120dp"
+                android:maxHeight="13dp"
+                android:minWidth="120dp"
+                android:minHeight="13dp"
+                android:shadowColor="#000000"
+                android:shadowDx="2"
+                android:shadowDy="2"
+                android:shadowRadius="1"
+                android:text=""
+                android:textSize="11dp"
+                android:textAlignment="textStart"
+                android:textColor="#FFFFFF" />
+
+            <TextView
+                android:id="@+id/nwText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/squareLogo"
+                android:layout_marginRight="20dp"
+                android:layout_below="@id/avgCpuText"
                 android:maxWidth="120dp"
                 android:maxHeight="13dp"
                 android:minWidth="120dp"

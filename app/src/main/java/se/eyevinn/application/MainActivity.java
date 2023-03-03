@@ -18,8 +18,6 @@ import android.content.Context;
 import android.net.TrafficStats;
 import android.os.Bundle;
 import android.os.Process;
-import android.system.Os;
-import android.system.OsConstants;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -48,8 +46,10 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -64,27 +64,17 @@ import se.eyevinn.application.video.VideoSourceList;
 
 public class MainActivity extends AppCompatActivity implements VideoRendererEventListener {
 
-    public static final String HLS_VOD = "https://f53accc45b7aded64ed8085068f31881.egress.mediapackage-vod.eu-north-1.amazonaws.com/out/v1/1c63bf88e2664639a6c293b4d055e6bb/ade303f83e8444d69b7658f988abb054/2a647c0cf9b7409598770b9f11799178/manifest.m3u8";
-    public static final String MPD_VOD = "https://f53accc45b7aded64ed8085068f31881.egress.mediapackage-vod.eu-north-1.amazonaws.com/out/v1/1c63bf88e2664639a6c293b4d055e6bb/64651f16da554640930b7ce2cd9f758b/66d211307b7d43d3bd515a3bfb654e1c/manifest.mpd";
-    public static final String HLS_LIVE = "https://d2fz24s2fts31b.cloudfront.net/out/v1/6484d7c664924b77893f9b4f63080e5d/manifest.m3u8";
-    public static final String MPD_LIVE = "https://d2fz24s2fts31b.cloudfront.net/out/v1/3b6879c0836346c2a44c9b4b33520f4e/manifest.mpd";
-    public static final String HLS_LIVE_SSAI = "https://edfaeed9c7154a20828a30a26878ade0.mediatailor.eu-west-1.amazonaws.com/v1/master/1b8a07d9a44fe90e52d5698704c72270d177ae74/AdTest/master.m3u8";
-
     private static final String TAG = "MainActivity";
     private SimpleExoPlayer player;
     private Timer timer;
-
     private VideoSourceList videoSourceList;
-    private static final long numCores = Os.sysconf(OsConstants._SC_NPROCESSORS_CONF);
-    private static final long clockSpeedHz = Os.sysconf(OsConstants._SC_CLK_TCK);
-
     private static final int appPID = Process.myPid();
     private static final int appUID = Process.myUid();
-
-    private long prevRxBytes = TrafficStats.getTotalRxBytes();
+    private long prevRxBytes = 0;
     private long displayedBitrate = 0;
     private long totBitrate = 0;
-    private long numTicks = 0;
+    private float avgCpu = 0.0f;
+    private long numTicks = 1;
 
     private DefaultRenderersFactory renderersFactory;
     private static final CpuMetrics cpuMetrics = new CpuMetrics();
@@ -124,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         debugButtonListener();
     }
 
-
     private void setupPlayer(boolean isLcevc) {
         if (player == null) {
             DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
@@ -134,11 +123,10 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             if (isLcevc) {
                 renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
             }
-            player = new SimpleExoPlayer.Builder(this, renderersFactory)
+            player = new SimpleExoPlayer.Builder(this)
                     .setTrackSelector(trackSelector)
                     .build();
         }
-
         PlayerView playerView = findViewById(R.id.exo_player_view);
 
         playerView.setPlayer(player);
@@ -176,15 +164,13 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             editText.clearFocus();
             EditText inputText = findViewById(R.id.inputtext);
             String message = inputText.getText().toString();
-            if (isVideoUrl(message)) {
+            if(message.length() == 0) {
+                onSourcesLoaded(new TaskGetSourceList.SourceListLoaded(videoSourceList, null));
+            } else if (isVideoUrl(message)) {
                 playStreamInPlayer(message);
             } else {
                 new TaskGetSourceList((sourceList -> { onSourcesLoaded(sourceList); }))
                         .execute(message);
-            }
-            if(totBitrate != 0) {
-                totBitrate = 0;
-                numTicks = 0;
             }
         });
     }
@@ -202,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             String fullUrl = baseUri != null ? baseUri.resolve(s.getUrl()).toString() : s.getUrl();
             b.setTooltipText(fullUrl);
             b.setOnClickListener(view -> {
+                resetBitrateCounter();
                 Log.v(TAG, "Source " + s.getName() + " is lcevc: " + s.isLcevc());
 
                 player.release();
@@ -213,6 +200,14 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
            flexbox.addView(b);
         }
         buttonPanel1.addView(flexbox);
+    }
+
+    private void resetBitrateCounter() {
+        this.prevRxBytes = 0;
+        this.displayedBitrate = 0;
+        this.avgCpu = 0.0f;
+        this.totBitrate = 0;
+        this.numTicks = 1;
     }
 
     private boolean isVideoUrl(String url) {
@@ -252,6 +247,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         updateNetworkMetrics();
         updateFPSMetrics();
         updateCodecMetrics();
+        numTicks++;
     }
 
     private void updateFPSMetrics() {
@@ -277,19 +273,17 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         TextView avgNwText = findViewById(R.id.avgNwText);
 
         displayedBitrate = (rxBytes - prevRxBytes) * 8 / 1000;
+        totBitrate += numTicks > 1 ? displayedBitrate : 0;
         this.runOnUiThread(() -> {
-            if(player.isPlaying()) {
-                numTicks++;
-                totBitrate += displayedBitrate;
-            }
-                nwText.setText("App bitrate: " + displayedBitrate + "kb/s");
-                avgNwText.setText("Avg bitrate: " + (int)(totBitrate / (numTicks != 0 ? numTicks : 1)) + "kb/s");
+            nwText.setText("App bitrate: " + displayedBitrate + "kb/s");
+            avgNwText.setText("Avg bitrate: " + (int)(totBitrate / numTicks) + "kb/s");
         });
         prevRxBytes = rxBytes;
     }
 
     private void updateCpuMetrics() {
         TextView cpuText = findViewById(R.id.cpuText);
+        TextView avgCpuText = findViewById(R.id.avgCpuText);
         try {
             File file = new File(String.format("/proc/%s/stat", appPID));
             Scanner reader = new Scanner(file);
@@ -301,8 +295,13 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             String[] splitStatResult = statResult.split(" ");
 
             float cpuTimeSec = cpuMetrics.calcCpuTime(splitStatResult);
-            float avgCpuUsage = cpuMetrics.calcAvgCpuUsage (currTime);
-            this.runOnUiThread(() -> cpuText.setText(String.format("CPU: %.2f%%", (double) Math.abs(avgCpuUsage))));
+            float CurrCpuUsage = cpuMetrics.calcCurrCpuUsage(currTime);
+            this.avgCpu += CurrCpuUsage;
+            this.runOnUiThread(() -> {
+                cpuText.setText(String.format("CPU: %.2f%%", (double) Math.abs(CurrCpuUsage)));
+                avgCpuText.setText(String.format("Avg CPU: %.2f%%", (double) Math.abs(avgCpu / numTicks)));
+
+            });
             cpuMetrics.updateCpuMetrics(currTime, cpuTimeSec);
             cpuMetrics.updateStatMetrics(splitStatResult);
             reader.close();
