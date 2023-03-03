@@ -199,8 +199,12 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             String fullUrl = baseUri != null ? baseUri.resolve(s.getUrl()).toString() : s.getUrl();
             b.setTooltipText(fullUrl);
             b.setOnClickListener(view -> {
+                Log.v(TAG, "Source " + s.getName() + " is lcevc: " + s.isLcevc());
                 if (s.isLcevc()) {
                     renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
+                    player.release();
+                    player = null;
+                    setupPlayer();
                 } else {
                     renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF);
                 }
