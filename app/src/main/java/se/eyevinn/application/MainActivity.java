@@ -36,6 +36,9 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
+import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
+import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -56,6 +59,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.stream.Collectors;
 
 import se.eyevinn.application.video.DefaultVideoSources;
 import se.eyevinn.application.video.VideoSource;
@@ -107,19 +111,26 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setupPlayer(false);
+        setupPlayer(false, false);
         videoSourceList = DefaultVideoSources.getDefaultVideoSources();
         loadButtonListener();
         onSourcesLoaded(new TaskGetSourceList.SourceListLoaded(videoSourceList, null));
         debugButtonListener();
     }
 
-    private void setupPlayer(boolean isLcevc) {
+    private void setupPlayer(boolean isLcevc, boolean forceSoftwareDecoding) {
         if (player == null) {
             DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
             trackSelector.setParameters(
                     trackSelector.buildUponParameters().setMaxVideoSizeSd());
             this.renderersFactory = new DefaultRenderersFactory(this);
+            if (forceSoftwareDecoding) {
+                renderersFactory.setMediaCodecSelector((mimeType, requiresSecureDecoder, requiresTunnelingDecoder) -> {
+                    List<MediaCodecInfo> infos =
+                            MediaCodecSelector.DEFAULT.getDecoderInfos(mimeType, requiresSecureDecoder, requiresTunnelingDecoder);
+                    return infos.stream().filter(i -> !i.hardwareAccelerated).collect(Collectors.toList());
+                });
+            }
             if (isLcevc) {
                 renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
             }
@@ -193,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
 
                 player.release();
                 player = null;
-                setupPlayer(s.isLcevc());
+                setupPlayer(s.isLcevc(), s.isForceSoftwareDecoding());
 
                 playStreamInPlayer(fullUrl);
             });
