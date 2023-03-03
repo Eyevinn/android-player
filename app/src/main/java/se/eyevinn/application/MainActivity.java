@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             if (isLcevc) {
                 renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
             }
-            player = new SimpleExoPlayer.Builder(this)
+            player = new SimpleExoPlayer.Builder(this, renderersFactory)
                     .setTrackSelector(trackSelector)
                     .build();
         }
