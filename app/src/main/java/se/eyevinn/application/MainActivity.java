@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        setupPlayer();
+        setupPlayer(false);
         videoSourceList = DefaultVideoSources.getDefaultVideoSources();
         loadButtonListener();
         onSourcesLoaded(new TaskGetSourceList.SourceListLoaded(videoSourceList, null));
@@ -125,12 +125,15 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     }
 
 
-    private void setupPlayer() {
+    private void setupPlayer(boolean isLcevc) {
         if (player == null) {
             DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
             trackSelector.setParameters(
                     trackSelector.buildUponParameters().setMaxVideoSizeSd());
             this.renderersFactory = new DefaultRenderersFactory(this);
+            if (isLcevc) {
+                renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
+            }
             player = new SimpleExoPlayer.Builder(this, renderersFactory)
                     .setTrackSelector(trackSelector)
                     .build();
@@ -200,14 +203,11 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             b.setTooltipText(fullUrl);
             b.setOnClickListener(view -> {
                 Log.v(TAG, "Source " + s.getName() + " is lcevc: " + s.isLcevc());
-                if (s.isLcevc()) {
-                    renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
-                    player.release();
-                    player = null;
-                    setupPlayer();
-                } else {
-                    renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF);
-                }
+
+                player.release();
+                player = null;
+                setupPlayer(s.isLcevc());
+
                 playStreamInPlayer(fullUrl);
             });
            flexbox.addView(b);
