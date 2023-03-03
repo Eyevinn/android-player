@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
     buildToolsVersion "30.0.3"
 
     defaultConfig {
@@ -47,12 +47,14 @@ dependencies {
         implementation files('../custom-exoplayer-libs/hls/library-hls-release.aar')
         implementation files('../custom-exoplayer-libs/common/library-common-release.aar')
         implementation files('../custom-exoplayer-libs/extractor/library-extractor-release.aar')
+        implementation files('../custom-exoplayer-libs/extension-lcevc-release.aar')
         implementation("com.google.guava:guava:31.1-jre")
+        implementation 'com.google.code.gson:gson:2.10.1'
     } else {
-        implementation 'com.google.android.exoplayer:exoplayer-core:2.12.0'
-        implementation 'com.google.android.exoplayer:exoplayer-dash:2.12.0'
-        implementation 'com.google.android.exoplayer:exoplayer-hls:2.12.0'
-        implementation 'com.google.android.exoplayer:exoplayer-ui:2.12.0'
+        implementation 'com.google.android.exoplayer:exoplayer-core:2.18.3'
+        implementation 'com.google.android.exoplayer:exoplayer-dash:2.18.3'
+        implementation 'com.google.android.exoplayer:exoplayer-hls:2.18.3'
+        implementation 'com.google.android.exoplayer:exoplayer-ui:2.18.3'
     }
     implementation 'com.squareup.okhttp3:okhttp:4.10.0'
     implementation "com.fasterxml.jackson.core:jackson-databind:2.14.2"

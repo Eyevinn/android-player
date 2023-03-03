@@ -34,6 +34,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
@@ -84,6 +85,8 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
     private long displayedBitrate = 0;
     private long totBitrate = 0;
     private long numTicks = 0;
+
+    private DefaultRenderersFactory renderersFactory;
     private static final CpuMetrics cpuMetrics = new CpuMetrics();
 
     private static final List<Integer> mediaKeyCodes = Arrays.asList(
@@ -121,15 +124,18 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         debugButtonListener();
     }
 
+
     private void setupPlayer() {
         if (player == null) {
             DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
             trackSelector.setParameters(
                     trackSelector.buildUponParameters().setMaxVideoSizeSd());
-            player = new SimpleExoPlayer.Builder(this)
+            this.renderersFactory = new DefaultRenderersFactory(this);
+            player = new SimpleExoPlayer.Builder(this, renderersFactory)
                     .setTrackSelector(trackSelector)
                     .build();
         }
+
         PlayerView playerView = findViewById(R.id.exo_player_view);
 
         playerView.setPlayer(player);
@@ -193,6 +199,11 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             String fullUrl = baseUri != null ? baseUri.resolve(s.getUrl()).toString() : s.getUrl();
             b.setTooltipText(fullUrl);
             b.setOnClickListener(view -> {
+                if (s.isLcevc()) {
+                    renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
+                } else {
+                    renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_OFF);
+                }
                 playStreamInPlayer(fullUrl);
             });
            flexbox.addView(b);
