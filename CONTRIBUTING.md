@@ -1,6 +1,7 @@
 # Submitting Issues
 
-We use GitHub issues to track public bugs. If you are submitting a bug, please provide the contents of the HLS manifests (master and media manifests) to make it easier to reproduce the issue and update unit tests.
+We use GitHub issues to track public bugs. If you are submitting a bug, please provide 
+as much info as possible to make it easier to reproduce the issue and update unit tests.
 
 # Contributing Code
 
