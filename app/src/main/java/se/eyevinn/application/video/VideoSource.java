@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import javax.annotation.Nullable;
-
-@JsonIgnoreProperties()
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class VideoSource {
 
 
@@ -18,11 +16,11 @@ public class VideoSource {
     @JsonCreator
     public VideoSource(@JsonProperty("name") String name,
                        @JsonProperty("url") String url,
-                       @Nullable  @JsonProperty("lcevc") boolean lcevc,
-                       @Nullable  @JsonProperty("forceSoftwareDecoding") boolean forceSoftwareDecoding) {
+                       @JsonProperty("preferExtensionRenderer") boolean preferExtensionRenderer,
+                       @JsonProperty("forceSoftwareDecoding") boolean forceSoftwareDecoding) {
         this.name = name;
         this.url = url;
-        this.lcevc = lcevc;
+        this.preferExtensionRenderer = preferExtensionRenderer;
         this.forceSoftwareDecoding = forceSoftwareDecoding;
     }
 
@@ -34,7 +32,7 @@ public class VideoSource {
         return url;
     }
 
-    public boolean isLcevc() { return lcevc; }
+    public boolean isPreferExtensionRenderer() { return preferExtensionRenderer; }
 
     public boolean isForceSoftwareDecoding() {
         return forceSoftwareDecoding;
@@ -42,6 +40,6 @@ public class VideoSource {
 
     private String name;
     private String url;
-    private boolean lcevc;
+    private boolean preferExtensionRenderer;
     private boolean forceSoftwareDecoding;
 }

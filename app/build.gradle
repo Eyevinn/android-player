@@ -40,14 +40,7 @@ dependencies {
     implementation 'junit:junit:4.12'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     if (Boolean.valueOf(project.property("customExoplayer"))) {
-        implementation files('../custom-exoplayer-libs/all/library-release.aar')
-        implementation files('../custom-exoplayer-libs/core/library-core-release.aar')
-        implementation files('../custom-exoplayer-libs/ui/library-ui-release.aar')
-        implementation files('../custom-exoplayer-libs/dash/library-dash-release.aar')
-        implementation files('../custom-exoplayer-libs/hls/library-hls-release.aar')
-        implementation files('../custom-exoplayer-libs/common/library-common-release.aar')
-        implementation files('../custom-exoplayer-libs/extractor/library-extractor-release.aar')
-        implementation files('../custom-exoplayer-libs/extension-lcevc-release.aar')
+        implementation fileTree(dir: '../custom-exoplayer-libs', include: ['**/*.aar', '*.aar'])
         implementation("com.google.guava:guava:31.1-jre")
         implementation 'com.google.code.gson:gson:2.10.1'
     } else {

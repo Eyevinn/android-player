@@ -38,7 +38,6 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.mediacodec.MediaCodecInfo;
 import com.google.android.exoplayer2.mediacodec.MediaCodecSelector;
-import com.google.android.exoplayer2.mediacodec.MediaCodecUtil;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout;
 import com.google.android.exoplayer2.ui.PlayerView;
@@ -49,10 +48,8 @@ import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexWrap;
 import com.google.android.flexbox.FlexboxLayout;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
@@ -118,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
         debugButtonListener();
     }
 
-    private void setupPlayer(boolean isLcevc, boolean forceSoftwareDecoding) {
+    private void setupPlayer(boolean preferExtensionRenderer, boolean forceSoftwareDecoding) {
         if (player == null) {
             DefaultTrackSelector trackSelector = new DefaultTrackSelector(this);
             trackSelector.setParameters(
@@ -131,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
                     return infos.stream().filter(i -> !i.hardwareAccelerated).collect(Collectors.toList());
                 });
             }
-            if (isLcevc) {
+            if (preferExtensionRenderer) {
                 renderersFactory.setExtensionRendererMode(DefaultRenderersFactory.EXTENSION_RENDERER_MODE_PREFER);
             }
             player = new SimpleExoPlayer.Builder(this, renderersFactory)
@@ -200,11 +197,9 @@ public class MainActivity extends AppCompatActivity implements VideoRendererEven
             b.setTooltipText(fullUrl);
             b.setOnClickListener(view -> {
                 resetBitrateCounter();
-                Log.v(TAG, "Source " + s.getName() + " is lcevc: " + s.isLcevc());
-
                 player.release();
                 player = null;
-                setupPlayer(s.isLcevc(), s.isForceSoftwareDecoding());
+                setupPlayer(s.isPreferExtensionRenderer(), s.isForceSoftwareDecoding());
 
                 playStreamInPlayer(fullUrl);
             });

@@ -30,8 +30,8 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="@color/exo_white_opacity_70"
-            android:hint="Paste a stream Uri here .."
+            android:background="@color/white_opacity_70"
+            android:hint="Paste a stream Uri, or Uri to list of streams, here .."
             android:selectAllOnFocus="true"
             android:selectable="true"
             android:textIsSelectable="true" />
