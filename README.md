@@ -43,6 +43,22 @@ If the `forceSoftwareDecoding` property is set to `true` for a video, the player
 decoding when playing that video. It is also possible to set the `preferExtensionRenderer` property
 for a source which will set exoplayer extension renderer mode to `EXTENSION_RENDERER_MODE_PREFER`.
 
+### Opening the stream stats window
+You open the window containing the statistics of the stream by clicking the small button -> <img src="app/src/main/res/drawable/android_debug_icon.png" width="15" height="20"> <- 
+in the top left of the player window. This window will show the following stats:
+- Memory: The total memory used by the device.
+- Resolution: The resolution of the video/stream playing.
+- Frame rate: The frame rate of the video/stream, if available.
+- Codec: The codec used for decoding the video/stream.
+- CPU: CPU usage per second of the player.
+- Avg CPU: Average CPU usage of player since video/stream started.
+- App/Device bitrate: Current Application bitrate per second if supported. 
+Else current total download bitrate of device per second.
+- Avg bitrate: Average bitrate of player/device since video/stream started.
+
+It should be noted that the CPU usage shows the usage of the player, excluding any decoding and other system processes. 
+This is due to Android restricting access to certain system files for device applications.
+
 ## Development
 ### Running the app
 - Set up the code in the Android studio.
