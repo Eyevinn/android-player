@@ -1,6 +1,6 @@
 # Submitting Issues
 
-We use GitHub issues to track public bugs. If you are submitting a bug, please provide 
+We use GitHub issues to track public bugs. If you are submitting a bug, please provide
 as much info as possible to make it easier to reproduce the issue and update unit tests.
 
 # Contributing Code
@@ -9,15 +9,13 @@ This project uses [conventional commits](https://www.conventionalcommits.org/en/
 
 We follow the [GitHub Flow](https://guides.github.com/introduction/flow/index.html) so all contributions happen through pull requests. We actively welcome your pull requests:
 
- 1. Fork the repo and create your branch from master.
- 2. If you've added code that should be tested, add tests.
- 3. If you've changed APIs, update the documentation.
- 4. Ensure the test suite passes.
- 5. Issue that pull request!
+1.  Fork the repo and create your branch from master.
+2.  If you've added code that should be tested, add tests.
+3.  If you've changed APIs, update the documentation.
+4.  Ensure the test suite passes.
+5.  Issue that pull request!
 
-Use 2 spaces for indentation rather than tabs. Thank you.
-
-When submit code changes your submissions are understood to be under the same MIT License that covers the project. Feel free to contact Eyevinn Technology if that's a concern.
+When submitting code changes your submissions are understood to be under the same MIT License that covers the project. Feel free to contact Eyevinn Technology if that's a concern.
 
 # Code of Conduct
 
