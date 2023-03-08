@@ -4,8 +4,6 @@ Eyevinn Andriod app to test HLS and MPEG-dash stream.
 ## How to setup: ##
 - Download java version 1.8+.
 - Install Android studio IDE.
-- Set up the code in the Android studio.
-
 
 ## How to run the app: ##
 - Set up the code in the Android studio.
