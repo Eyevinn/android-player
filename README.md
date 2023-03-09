@@ -1,31 +1,98 @@
-# Description: #
-Eyevinn Andriod app to test HLS and MPEG-dash stream.
+# Eyevinn Android Player
+Eyevinn Andriod app for easy testing of HLS and MPEG-dash stream.
 
-## How to setup: ##
-- Download java version 1.8+.
-- Install Android studio IDE.
-- Set up the code in the Android studio.
+![Screenshot](Screenshot.png)
 
+## Features
+- Set of default streams for testing
+- Buttons for selecting any configured stream
+- Loading of HLS/dash stream from uri
+- Loading of mp4 from uri
+- Loading of json list of streams for uri
 
-## How to run the app: ##
+## Usage
+### Loading a video stream
+Press any of the buttons to load the corresponding video stream in the player.
+
+### Loading a list of video streams
+Enter a uri pointing to a json document on the below format and press `Load`.
+
+```json
+{
+    "sourceList": [
+        {
+            "name": "Some test video",
+            "url": "test-video-1/master.m3u8",
+        },
+        {
+            "name": "Same video again but force software decoding",
+            "url": "test-video-1/master.m3u8",
+            "forceSoftwareDecoding": true
+        },
+        {
+            "name": "Test video absolute url",
+            "url": "https://some-server/my-viddeo/manifest.mpd"
+        }
+    ]
+}
+```
+The URIs can be either absolute
+or relative. In the latter case they will be resolved against the url the json document was
+fetched from.
+If the `forceSoftwareDecoding` property is set to `true` for a video, the player will use software
+decoding when playing that video. It is also possible to set the `preferExtensionRenderer` property
+for a source which will set exoplayer extension renderer mode to `EXTENSION_RENDERER_MODE_PREFER`.
+
+### Opening the stream stats window
+You open the window containing the statistics of the stream by clicking the small button -> <img src="app/src/main/res/drawable/android_debug_icon.png" width="15" height="20"> <- 
+in the top left of the player window. This window will show the following stats:
+- Memory: The total memory used by the device.
+- Resolution: The resolution of the video/stream playing.
+- Frame rate: The frame rate of the video/stream, if available.
+- Codec: The codec used for decoding the video/stream.
+- CPU: CPU usage per second of the player.
+- Avg CPU: Average CPU usage of player since video/stream started.
+- App/Device bitrate: Current Application bitrate per second if supported. 
+Else current total download bitrate of device per second.
+- Avg bitrate: Average bitrate of player/device since video/stream started.
+
+It should be noted that the CPU usage shows the usage of the player, excluding any decoding and other system processes. 
+This is due to Android restricting access to certain system files for device applications.
+
+## Development
+### Running the app
 - Set up the code in the Android studio.
 - Create a virtual device in AVD manager.
 - Run the application in virtual device.
 - Click on HLS or Mpeg-Dash button. 
-- Ensure that you have sample stream in the input box.
-- Click the Load button.
-- Selected stream will be played in the player.
+- Ensure that stream is loaded in player
+- Selected stream will be played in the player when play is pressed
 
 
-## How to run the tests: ##
-- Right click on the test and exeute it in Andriod studio.
+### Run tests ##
+- Right click on the test and execute it in Android studio.
 
+## Contributing
 
-## Features: ## 
-- HLS Button to load sample HLS stream.
-- MPEG-DASH Button to load sample MPEG-DASH stream.
-- Load button to start the selected video stream.
-- User can add valid HLS/Mpeg-Dash video.
+See [CONTRIBUTING](CONTRIBUTING.md)
 
+## License
 
-![alt text](https://github.com/Eyevinn/android-player/blob/exoplayer-integration/Screenshot.png?raw=true)
+This project is licensed under the Apache License v2.0, see [LICENSE](LICENSE)
+
+## Support
+
+Join our [community on Slack](http://slack.streamingtech.se) where you can post any questions regarding any of our open source projects. Eyevinn's consulting business can also offer you:
+
+- Further development of this component
+- Customization and integration of this component into your platform
+- Support and maintenance agreement
+
+Contact [sales@eyevinn.se](mailto:sales@eyevinn.se) if you are interested.
+
+## About Eyevinn Technology
+
+[Eyevinn Technology](https://www.eyevinntechnology.se) is an independent consultant firm specialized in video and streaming. Independent in a way that we are not commercially tied to any platform or technology vendor. As our way to innovate and push the industry forward we develop proof-of-concepts and tools. The things we learn and the code we write we share with the industry in [blogs](https://dev.to/video) and by open sourcing the code we have written.
+
+Want to know more about Eyevinn and how it is to work here. Contact us at work@eyevinn.se!
+
